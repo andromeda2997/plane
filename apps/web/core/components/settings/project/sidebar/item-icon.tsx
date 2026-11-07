@@ -21,6 +21,7 @@ import {
 import type { TProjectSettingsTabs } from "@plane/types";
 // components
 import { SettingIcon } from "@/components/icons/attachment";
+import { MilestoneIcon } from "@/components/milestones/icon";
 
 export const PROJECT_SETTINGS_ICONS: Record<TProjectSettingsTabs, LucideIcon | React.FC<ISvgIcons>> = {
   general: SettingIcon,
@@ -32,6 +33,7 @@ export const PROJECT_SETTINGS_ICONS: Record<TProjectSettingsTabs, LucideIcon | R
   features_intake: IntakeIcon,
   states: StatePropertyIcon,
   labels: LabelPropertyIcon,
+  milestones: MilestoneIcon,
   estimates: EstimatePropertyIcon,
   automations: Zap,
 };

@@ -111,6 +111,8 @@ INSTALLED_APPS = [
     "plane.license",
     "plane.api",
     "plane.authentication",
+    # Fork-Erweiterungen (plane/ext)
+    "plane.ext.milestones",
     # Third-party things
     "rest_framework",
     "corsheaders",

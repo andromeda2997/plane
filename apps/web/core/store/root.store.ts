@@ -46,6 +46,8 @@ import type { ILabelStore } from "./label.store";
 import { LabelStore } from "./label.store";
 import type { IMemberRootStore } from "./member";
 import { MemberRootStore } from "./member";
+import type { IMilestoneStore } from "./milestone.store";
+import { MilestoneStore } from "./milestone.store";
 import type { IModuleStore } from "./module.store";
 import { ModulesStore } from "./module.store";
 import type { IModuleFilterStore } from "./module_filter.store";
@@ -103,6 +105,7 @@ export class CoreRootStore {
   workItemFilters: IWorkItemFilterStore;
   powerK: IPowerKStore;
   timelineStore: ITimelineStore;
+  milestone: IMilestoneStore;
 
   constructor() {
     this.router = new RouterStore();
@@ -135,6 +138,7 @@ export class CoreRootStore {
     this.workItemFilters = new WorkItemFilterStore();
     this.powerK = new PowerKStore();
     this.timelineStore = new TimeLineStore(this);
+    this.milestone = new MilestoneStore();
   }
 
   resetOnSignOut() {
@@ -169,6 +173,7 @@ export class CoreRootStore {
     this.workItemFilters = new WorkItemFilterStore();
     this.powerK = new PowerKStore();
     this.timelineStore = new TimeLineStore(this);
+    this.milestone = new MilestoneStore();
   }
 }
 

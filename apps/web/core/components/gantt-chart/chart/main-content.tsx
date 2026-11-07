@@ -58,6 +58,7 @@ type Props = {
   ) => ChartDataType | undefined;
   quickAdd?: React.ReactNode | undefined;
   isEpic?: boolean;
+  chartOverlay?: React.ReactNode;
 };
 
 export const GanttChartMainContent = observer(function GanttChartMainContent(props: Props) {
@@ -83,6 +84,7 @@ export const GanttChartMainContent = observer(function GanttChartMainContent(pro
     quickAdd,
     updateBlockDates,
     isEpic = false,
+    chartOverlay,
   } = props;
   // refs
   const ganttContainerRef = useRef<HTMLDivElement>(null);
@@ -196,6 +198,7 @@ export const GanttChartMainContent = observer(function GanttChartMainContent(pro
               />
               <div className="relative h-max min-h-full flex-shrink-0 flex-grow">
                 <ActiveChartView />
+                {currentViewData && chartOverlay}
                 {currentViewData && (
                   <div
                     className="relative h-full"
