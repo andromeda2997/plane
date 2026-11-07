@@ -11,7 +11,7 @@
     "delete": "Meilenstein löschen",
     "settings_description": "Wichtige Termine des Projekts, z. B. der Abschluss einer Leistungsphase. Meilensteine erscheinen im Zeitstrahl als gestrichelte senkrechte Linien; Arbeitselemente werden in ihren Eigenschaften zugeordnet.",
     "empty_title": "Noch keine Meilensteine",
-    "empty_description": "Lege den ersten Meilenstein an, um einen wichtigen Termin des Projekts zu markieren.",
+    "empty_description": "Legen Sie den ersten Meilenstein an, um einen wichtigen Termin des Projekts zu markieren.",
     "empty_short": "Keine Meilensteine in diesem Projekt",
     "progress_label": "Fortschritt",
     "progress": "{done} von {total} Arbeitselementen erledigt",

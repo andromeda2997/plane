@@ -156,7 +156,7 @@
   "calendar_feed": {
     "settings_label": "Calendar subscription",
     "title": "Subscribe to calendar",
-    "project_description": "Show this project's work items with a start or due date, its cycles and modules in Outlook, Teams or any other calendar app.",
+    "project_description": "Show this project's work items with a start or due date, its cycles, modules and milestones in Outlook, Teams or any other calendar app.",
     "profile_description": "Show the work items assigned to you in a workspace in Outlook, Teams or any other calendar app.",
     "privacy_note": "The calendar only contains title, ID, dates, status and a link – no descriptions, comments or people. Anyone who knows the address can read the calendar, so treat it like a password.",
     "workspace_label": "Workspace",

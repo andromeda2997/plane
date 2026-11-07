@@ -156,9 +156,9 @@
   "calendar_feed": {
     "settings_label": "Kalender abonnieren",
     "title": "Kalender abonnieren",
-    "project_description": "Arbeitselemente dieses Projekts mit Start- oder Fälligkeitsdatum sowie Zyklen und Module in Outlook, Teams oder einer anderen Kalender-App anzeigen.",
-    "profile_description": "Die dir zugewiesenen Arbeitselemente eines Workspace in Outlook, Teams oder einer anderen Kalender-App anzeigen.",
-    "privacy_note": "Der Kalender enthält nur Titel, Kennung, Datum, Status und Link – keine Beschreibungen, Kommentare oder Personen. Wer die Adresse kennt, kann den Kalender lesen; behandle sie wie ein Passwort.",
+    "project_description": "Arbeitselemente dieses Projekts mit Start- oder Fälligkeitsdatum sowie Zyklen, Module und Meilensteine in Outlook, Teams oder einer anderen Kalender-App anzeigen.",
+    "profile_description": "Die Ihnen zugewiesenen Arbeitselemente eines Workspace in Outlook, Teams oder einer anderen Kalender-App anzeigen.",
+    "privacy_note": "Der Kalender enthält nur Titel, Kennung, Datum, Status und Link – keine Beschreibungen, Kommentare oder Personen. Wer die Adresse kennt, kann den Kalender lesen; behandeln Sie sie wie ein Passwort.",
     "workspace_label": "Workspace",
     "hide_completed": "Abgeschlossene und abgebrochene Arbeitselemente ausblenden",
     "create": "Kalender-Link erzeugen",
@@ -166,21 +166,21 @@
     "scope_project": "Projekt {identifier}",
     "created": {
       "title": "Kalender-Link erzeugt",
-      "description": "Kopiere die Adresse jetzt. Aus Sicherheitsgründen wird sie nur einmal angezeigt.",
+      "description": "Kopieren Sie die Adresse jetzt. Aus Sicherheitsgründen wird sie nur einmal angezeigt.",
       "copy": "Link kopieren",
       "copied": "Kalender-Link in die Zwischenablage kopiert.",
       "close": "Fertig"
     },
     "instructions": {
-      "title": "So abonnierst du den Kalender in Outlook",
+      "title": "So abonnieren Sie den Kalender in Outlook",
       "step_1": "Outlook im Web oder neues Outlook: Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren.",
       "step_2": "Adresse einfügen, Namen und Farbe wählen, dann auf Importieren klicken.",
-      "step_3": "Teams nutzt deinen Outlook-Kalender, die Einträge erscheinen dort ebenfalls.",
+      "step_3": "Teams nutzt Ihren Outlook-Kalender, die Einträge erscheinen dort ebenfalls.",
       "delay": "Outlook aktualisiert abonnierte Kalender nur alle paar Stunden. Änderungen in Plane erscheinen daher mit Verzögerung."
     },
     "list": {
-      "title": "Deine Kalender-Links",
-      "empty": "Du hast noch keine Kalender-Links erzeugt.",
+      "title": "Ihre Kalender-Links",
+      "empty": "Sie haben noch keine Kalender-Links erzeugt.",
       "created_at": "Erstellt {date}",
       "last_used": "Zuletzt abgerufen {time}",
       "never_used": "Noch nicht abgerufen",
@@ -192,7 +192,7 @@
     },
     "regenerate_modal": {
       "title": "Kalender-Link neu erzeugen?",
-      "description": "Die alte Adresse funktioniert sofort nicht mehr. Du musst den Kalender mit der neuen Adresse neu abonnieren.",
+      "description": "Die alte Adresse funktioniert sofort nicht mehr. Sie müssen den Kalender mit der neuen Adresse neu abonnieren.",
       "confirm": "Neu erzeugen",
       "confirming": "Wird erzeugt"
     },

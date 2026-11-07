@@ -537,7 +537,7 @@
       "description": "Arbeitselemente automatisch nach einer Regel anlegen, z. B. den wöchentlichen Jour fixe oder eine Baustellenbegehung jeden zweiten Dienstag.",
       "add": "Wiederholung hinzufügen",
       "empty_title": "Noch keine wiederkehrenden Arbeitselemente",
-      "empty_description": "Lege eine Vorlage und eine Regel fest – Plane erstellt das Arbeitselement dann zu jedem Termin.",
+      "empty_description": "Legen Sie eine Vorlage und eine Regel fest – Plane erstellt das Arbeitselement dann zu jedem Termin.",
       "create_title": "Neues wiederkehrendes Arbeitselement",
       "edit_title": "Wiederkehrendes Arbeitselement bearbeiten",
       "create_from_work_item": "Als Wiederholung anlegen",
@@ -646,7 +646,7 @@
         "resumed": "Wiederkehrendes Arbeitselement fortgesetzt.",
         "run_success": "Arbeitselement {identifier} wurde erstellt.",
         "run_failed": "Das Arbeitselement konnte nicht erstellt werden: {error}",
-        "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+        "error": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
       },
       "validation": {
         "name_required": "Titel ist erforderlich",
