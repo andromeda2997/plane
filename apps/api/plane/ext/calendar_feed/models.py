@@ -66,7 +66,7 @@ class CalendarFeed(BaseModel):
     revoked_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        db_table = "ext_calendar_feeds"
+        db_table = "ext_calendar_feed_feeds"
         verbose_name = "Calendar feed"
         verbose_name_plural = "Calendar feeds"
         ordering = ("-created_at",)
