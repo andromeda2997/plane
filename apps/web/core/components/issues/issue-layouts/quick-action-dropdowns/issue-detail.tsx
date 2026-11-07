@@ -8,11 +8,13 @@ import { useState } from "react";
 import { omit } from "lodash-es";
 import { observer } from "mobx-react";
 import { useParams } from "next/navigation";
-import { Ellipsis } from "lucide-react";
+import { Ellipsis, Repeat } from "lucide-react";
 // plane imports
 import { ARCHIVABLE_STATE_GROUPS, EUserPermissions, EUserPermissionsLevel } from "@plane/constants";
+import { useTranslation } from "@plane/i18n";
 import type { TIssue } from "@plane/types";
 import { EIssuesStoreType } from "@plane/types";
+import type { TContextMenuItem } from "@plane/ui";
 import { ContextMenu, CustomMenu } from "@plane/ui";
 import { cn } from "@plane/utils";
 // hooks
@@ -21,6 +23,7 @@ import { useProject } from "@/hooks/store/use-project";
 import { useProjectState } from "@/hooks/store/use-project-state";
 import { useUserPermissions } from "@/hooks/store/user";
 // helper
+import { CreateRecurringFromWorkItemModal } from "@/components/recurring-work-items/from-work-item-modal";
 import { ArchiveIssueModal } from "../../archive-issue-modal";
 import { DeleteIssueModal } from "../../delete-issue-modal";
 import { CreateUpdateIssueModal } from "../../issue-modal/modal";
@@ -64,6 +67,9 @@ export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickA
   const [deleteIssueModal, setDeleteIssueModal] = useState(false);
   const [archiveIssueModal, setArchiveIssueModal] = useState(false);
   const [_, setDuplicateWorkItemModal] = useState(false);
+  const [recurringModal, setRecurringModal] = useState(false);
+  // plane hooks
+  const { t } = useTranslation();
   // store hooks
   const { allowPermissions } = useUserPermissions();
   const { issuesFilter } = useIssues(EIssuesStoreType.PROJECT);
@@ -147,7 +153,24 @@ export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickA
   };
 
   //   const MENU_ITEMS = useWorkItemDetailMenuItems(menuItemProps);
-  const baseMenuItems = useWorkItemDetailMenuItems(menuItemProps);
+  const detailMenuItems = useWorkItemDetailMenuItems(menuItemProps);
+  // "Create as recurring" right after "Make a copy"
+  const recurringMenuItem: TContextMenuItem = {
+    key: "create-recurring",
+    title: t("project_settings.recurring_work_items.create_from_work_item"),
+    icon: Repeat,
+    action: () => setRecurringModal(true),
+    shouldRender: isEditingAllowed && !issue.archived_at,
+  };
+  const copyItemIndex = detailMenuItems.findIndex((item) => item.key === "make-a-copy");
+  const baseMenuItems =
+    copyItemIndex === -1
+      ? [...detailMenuItems, recurringMenuItem]
+      : [
+          ...detailMenuItems.slice(0, copyItemIndex + 1),
+          recurringMenuItem,
+          ...detailMenuItems.slice(copyItemIndex + 1),
+        ];
 
   const MENU_ITEMS = baseMenuItems
     // oxlint-disable-next-line oxc/no-map-spread
@@ -223,6 +246,14 @@ export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickA
         storeType={EIssuesStoreType.PROJECT}
         fetchIssueDetails={false}
       />
+      {workspaceSlug && (
+        <CreateRecurringFromWorkItemModal
+          isOpen={recurringModal}
+          onClose={() => setRecurringModal(false)}
+          workspaceSlug={workspaceSlug.toString()}
+          issue={issue}
+        />
+      )}
 
       <ContextMenu parentRef={parentRef} items={CONTEXT_MENU_ITEMS} />
       <CustomMenu

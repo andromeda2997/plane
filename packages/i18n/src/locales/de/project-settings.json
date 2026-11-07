@@ -530,6 +530,133 @@
           }
         }
       }
+    },
+    "recurring_work_items": {
+      "label": "Wiederkehrende Arbeitselemente",
+      "heading": "Wiederkehrende Arbeitselemente",
+      "description": "Arbeitselemente automatisch nach einer Regel anlegen, z. B. den wöchentlichen Jour fixe oder eine Baustellenbegehung jeden zweiten Dienstag.",
+      "add": "Wiederholung hinzufügen",
+      "empty_title": "Noch keine wiederkehrenden Arbeitselemente",
+      "empty_description": "Lege eine Vorlage und eine Regel fest – Plane erstellt das Arbeitselement dann zu jedem Termin.",
+      "create_title": "Neues wiederkehrendes Arbeitselement",
+      "edit_title": "Wiederkehrendes Arbeitselement bearbeiten",
+      "create_from_work_item": "Als Wiederholung anlegen",
+      "next_run": "Nächster Termin: {date}",
+      "no_next_run": "Keine weiteren Termine",
+      "paused": "Pausiert",
+      "load_error": "Wiederkehrende Arbeitselemente konnten nicht geladen werden. Ist der Server aktuell?",
+      "created_count": "{count, plural, one {# Arbeitselement erstellt} other {# Arbeitselemente erstellt}}",
+      "actions": {
+        "edit": "Bearbeiten",
+        "pause": "Pausieren",
+        "resume": "Fortsetzen",
+        "run_now": "Jetzt ausführen",
+        "history": "Protokoll",
+        "delete": "Löschen"
+      },
+      "fields": {
+        "name": "Titel",
+        "name_placeholder": "z. B. Jour fixe mit dem Bauherrn",
+        "description": "Beschreibung",
+        "properties": "Eigenschaften des erstellten Arbeitselements",
+        "duration": "Dauer (Tage)",
+        "duration_hint": "Setzt Start- und Fälligkeitsdatum. Leer lassen für ohne Datum.",
+        "rule": "Wiederholung",
+        "frequency": "Rhythmus",
+        "interval": "Alle",
+        "weekdays": "Am",
+        "month_day": "Am Tag",
+        "month_day_hint": "In kürzeren Monaten wird der letzte Tag des Monats verwendet.",
+        "start_date": "Beginnt am",
+        "end": "Endet",
+        "end_date": "Enddatum",
+        "max_occurrences": "Anzahl der Termine",
+        "create_days_before": "Vorlauf (Tage)",
+        "create_days_before_hint": "Das Arbeitselement wird so viele Tage vor seinem Datum um 6:00 Uhr (Zeitzone des Projekts) angelegt.",
+        "active": "Aktiv"
+      },
+      "frequency": {
+        "daily": "Täglich",
+        "weekly": "Wöchentlich",
+        "monthly": "Monatlich"
+      },
+      "unit": {
+        "daily": "{count, plural, one {Tag} other {Tage}}",
+        "weekly": "{count, plural, one {Woche} other {Wochen}}",
+        "monthly": "{count, plural, one {Monat} other {Monate}}"
+      },
+      "end_type": {
+        "never": "Nie",
+        "on_date": "An einem Datum",
+        "after_count": "Nach einer Anzahl von Terminen"
+      },
+      "weekday_short": {
+        "0": "Mo",
+        "1": "Di",
+        "2": "Mi",
+        "3": "Do",
+        "4": "Fr",
+        "5": "Sa",
+        "6": "So"
+      },
+      "weekday_long": {
+        "0": "Montag",
+        "1": "Dienstag",
+        "2": "Mittwoch",
+        "3": "Donnerstag",
+        "4": "Freitag",
+        "5": "Samstag",
+        "6": "Sonntag"
+      },
+      "summary": {
+        "daily": "{interval, plural, one {Jeden Tag} other {Alle # Tage}}",
+        "weekly": "{interval, plural, one {Jede Woche} other {Alle # Wochen}} am {days}",
+        "monthly": "{interval, plural, one {Jeden Monat} other {Alle # Monate}} am {day}.",
+        "until": "bis {date}",
+        "times": "{count, plural, one {einmal} other {#-mal}}"
+      },
+      "history": {
+        "title": "Protokoll: {name}",
+        "empty": "Es wurden noch keine Arbeitselemente erstellt.",
+        "scheduled": "Geplant",
+        "manual": "Manuell",
+        "success": "Erstellt",
+        "failed": "Fehlgeschlagen",
+        "occurrence": "Datum",
+        "work_item": "Arbeitselement",
+        "deleted_work_item": "Arbeitselement gelöscht"
+      },
+      "warnings": {
+        "state_not_found": "Status existiert nicht mehr, Standardstatus verwendet",
+        "labels_not_found": "Einige Labels existieren nicht mehr",
+        "assignees_not_found": "Einige Zuständige sind keine Projektmitglieder mehr",
+        "cycle_not_found": "Zyklus existiert nicht mehr",
+        "cycle_completed": "Zyklus ist bereits abgeschlossen",
+        "module_not_found": "Modul existiert nicht mehr"
+      },
+      "delete": {
+        "title": "Wiederkehrendes Arbeitselement löschen",
+        "content": "Soll „{name}“ wirklich gelöscht werden? Bereits erstellte Arbeitselemente bleiben erhalten."
+      },
+      "toast": {
+        "created": "Wiederkehrendes Arbeitselement angelegt.",
+        "updated": "Wiederkehrendes Arbeitselement gespeichert.",
+        "deleted": "Wiederkehrendes Arbeitselement gelöscht.",
+        "paused": "Wiederkehrendes Arbeitselement pausiert.",
+        "resumed": "Wiederkehrendes Arbeitselement fortgesetzt.",
+        "run_success": "Arbeitselement {identifier} wurde erstellt.",
+        "run_failed": "Das Arbeitselement konnte nicht erstellt werden: {error}",
+        "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+      },
+      "validation": {
+        "name_required": "Titel ist erforderlich",
+        "weekdays_required": "Mindestens einen Wochentag auswählen",
+        "month_day_required": "Einen Tag zwischen 1 und 31 eingeben",
+        "start_date_required": "Startdatum ist erforderlich",
+        "end_date_required": "Enddatum ist erforderlich",
+        "end_date_before_start": "Das Enddatum darf nicht vor dem Startdatum liegen",
+        "max_occurrences_required": "Anzahl der Termine eingeben"
+      }
     }
   }
 }
