@@ -13,5 +13,6 @@ class WikiConfig(AppConfig):
     """
 
     name = "plane.ext.wiki"
-    label = "plane_ext_wiki"
+    # Fest, NIE ändern (Konvention deployments/custom/README.md).
+    label = "ext_wiki"
     verbose_name = "Wiki"

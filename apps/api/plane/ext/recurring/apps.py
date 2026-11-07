@@ -7,6 +7,7 @@ from django.apps import AppConfig
 
 class RecurringConfig(AppConfig):
     name = "plane.ext.recurring"
-    label = "recurring"
+    # Fest, NIE ändern: Migrationen und Tabellennamen hängen daran.
+    label = "ext_recurring"
     verbose_name = "Recurring work items"
     default_auto_field = "django.db.models.BigAutoField"

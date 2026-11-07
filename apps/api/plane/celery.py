@@ -47,10 +47,6 @@ app.conf.beat_schedule = {
         "task": "plane.bgtasks.email_notification_task.stack_email_notification",
         "schedule": crontab(minute="*/5"),  # Every 5 minutes
     },
-    "check-every-fifteen-minutes-to-create-recurring-work-items": {
-        "task": "plane.ext.recurring.tasks.create_recurring_work_items",
-        "schedule": crontab(minute="*/15"),  # Every 15 minutes
-    },
     "push-instance-metrics": {
         "task": "plane.license.bgtasks.telemetry_metrics.push_instance_metrics",
         "schedule": schedule(run_every=timedelta(minutes=METRICS_PUSH_INTERVAL_MINUTES)),
@@ -97,6 +93,11 @@ app.conf.beat_schedule = {
         "schedule": crontab(hour=3, minute=45),  # UTC 03:45
     },
 }
+
+# Fork-Erweiterungen (plane/ext): eigene Beat-Einträge, siehe plane/ext/schedules.py
+from plane.ext.schedules import EXT_BEAT_SCHEDULE  # noqa: E402
+
+app.conf.beat_schedule.update(EXT_BEAT_SCHEDULE)
 
 
 # Setup logging
