@@ -5,7 +5,7 @@
  */
 
 import { API_BASE_URL } from "@plane/constants";
-import type { TDocumentPayload, TPage, TPageVersion } from "@plane/types";
+import type { TDocumentPayload, TPage, TPageMovePayload, TPageMoveResponse, TPageVersion } from "@plane/types";
 // services
 import { APIService } from "@/services/api.service";
 
@@ -47,6 +47,15 @@ export class WorkspacePageService extends APIService {
 
   async update(workspaceSlug: string, pageId: string, data: Partial<TPage>): Promise<TPage> {
     return this.patch(this.base(workspaceSlug, pageId), data)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
+  // Seite umhängen und einsortieren (parent + sort_order in einem Aufruf)
+  async updatePosition(workspaceSlug: string, pageId: string, data: TPageMovePayload): Promise<TPageMoveResponse> {
+    return this.post(`${this.base(workspaceSlug, pageId)}position/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;

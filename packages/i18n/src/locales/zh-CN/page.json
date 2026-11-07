@@ -135,6 +135,12 @@
       "archived_with_children": "Page and {count, plural, one {# sub page} other {# sub pages}} archived."
     },
     "delete_hint": "Sub pages are not deleted. They stay in the archive and move up one level.",
-    "archive_hint": "Sub pages are archived together with this page."
+    "archive_hint": "Sub pages are archived together with this page.",
+    "sort_manual": "Manual",
+    "dnd": {
+      "drag_to_move": "Drag to reorder or nest",
+      "drop_top_level": "Drop here: top level, first position",
+      "drop_top_level_end": "Drop here: top level, last position"
+    }
   }
 }

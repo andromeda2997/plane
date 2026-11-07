@@ -41,8 +41,9 @@ export class WorkspacePageStore implements IWorkspacePageStore {
   error: TError | undefined = undefined;
   filters: TPageFilters = {
     searchQuery: "",
-    sortKey: "updated_at",
-    sortBy: "desc",
+    // Seitenbaum: standardmäßig manuelle Reihenfolge (Drag-and-Drop)
+    sortKey: "manual",
+    sortBy: "asc",
   };
   // service
   service: WorkspacePageService;

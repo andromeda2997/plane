@@ -43,8 +43,10 @@ class WikiPageSerializer(BaseSerializer):
             "logo_props",
             "label_ids",
             "project_ids",
+            "sort_order",
         ]
         read_only_fields = [
+            "sort_order",
             "id",
             "owned_by",
             "access",

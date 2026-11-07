@@ -6,7 +6,7 @@
 
 // types
 import { API_BASE_URL } from "@plane/constants";
-import type { TDocumentPayload, TPage } from "@plane/types";
+import type { TDocumentPayload, TPage, TPageMovePayload, TPageMoveResponse } from "@plane/types";
 // helpers
 // services
 import { APIService } from "@/services/api.service";
@@ -51,6 +51,22 @@ export class ProjectPageService extends APIService {
 
   async update(workspaceSlug: string, projectId: string, pageId: string, data: Partial<TPage>): Promise<TPage> {
     return this.patch(`/api/workspaces/${workspaceSlug}/projects/${projectId}/pages/${pageId}/`, data)
+      .then((response) => response?.data)
+      .catch((error) => {
+        throw error?.response?.data;
+      });
+  }
+
+  /**
+   * @description Seite umhängen und einsortieren (parent + sort_order in einem Aufruf, Backend: plane.ext.wiki)
+   */
+  async updatePosition(
+    workspaceSlug: string,
+    projectId: string,
+    pageId: string,
+    data: TPageMovePayload
+  ): Promise<TPageMoveResponse> {
+    return this.post(`/api/workspaces/${workspaceSlug}/projects/${projectId}/pages/${pageId}/position/`, data)
       .then((response) => response?.data)
       .catch((error) => {
         throw error?.response?.data;
