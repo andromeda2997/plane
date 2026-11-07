@@ -44,7 +44,7 @@ export const EstimateListItem = observer(function EstimateListItem(props: TEstim
       description={estimatePointValues
         ?.map((estimatePointValue) => {
           if (currentEstimate.type === EEstimateSystem.TIME) {
-            return convertMinutesToHoursMinutesString(Number(estimatePointValue));
+            return convertMinutesToHoursMinutesString(Number(estimatePointValue)).trim();
           }
           return estimatePointValue;
         })
