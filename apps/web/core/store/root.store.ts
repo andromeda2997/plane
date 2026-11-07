@@ -50,6 +50,8 @@ import type { IRecurringWorkItemStore } from "./recurring-work-item.store";
 import { RecurringWorkItemStore } from "./recurring-work-item.store";
 import type { IMemberRootStore } from "./member";
 import { MemberRootStore } from "./member";
+import type { IMilestoneStore } from "./milestone.store";
+import { MilestoneStore } from "./milestone.store";
 import type { IModuleStore } from "./module.store";
 import { ModulesStore } from "./module.store";
 import type { IModuleFilterStore } from "./module_filter.store";
@@ -112,6 +114,7 @@ export class CoreRootStore {
   powerK: IPowerKStore;
   timelineStore: ITimelineStore;
   calendarFeed: ICalendarFeedStore;
+  milestone: IMilestoneStore;
 
   constructor() {
     this.router = new RouterStore();
@@ -147,6 +150,7 @@ export class CoreRootStore {
     this.powerK = new PowerKStore();
     this.timelineStore = new TimeLineStore(this);
     this.calendarFeed = new CalendarFeedStore();
+    this.milestone = new MilestoneStore();
   }
 
   resetOnSignOut() {
@@ -184,6 +188,7 @@ export class CoreRootStore {
     this.powerK = new PowerKStore();
     this.timelineStore = new TimeLineStore(this);
     this.calendarFeed = new CalendarFeedStore();
+    this.milestone = new MilestoneStore();
   }
 }
 

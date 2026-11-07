@@ -10,4 +10,5 @@ urlpatterns = [
     path("", include("plane.ext.recurring.urls")),
     path("", include("plane.ext.wiki.urls")),
     path("", include("plane.ext.calendar_feed.urls")),
+    path("", include("plane.ext.milestones.urls")),
 ]

@@ -1,0 +1,51 @@
+{
+  "milestone": {
+    "label": "Milestone",
+    "no_milestone": "No milestone",
+    "add": "Milestone",
+    "create": "Create milestone",
+    "create_here": "Create milestone here",
+    "edit": "Edit milestone",
+    "edit_short": "Edit",
+    "save": "Save",
+    "delete": "Delete milestone",
+    "settings_description": "Key dates of the project, e.g. the completion of a work phase. Milestones are shown as dashed vertical lines in the timeline layout; work items can be linked in their properties.",
+    "empty_title": "No milestones yet",
+    "empty_description": "Create the first milestone to mark a key date of the project.",
+    "empty_short": "No milestones in this project",
+    "progress_label": "Progress",
+    "progress": "{done} of {total} work items done",
+    "progress_none": "No linked work items",
+    "overdue": "Overdue: {count, plural, one {# open work item} other {# open work items}}",
+    "drag_hint": "Drag to change the date, click to edit",
+    "form": {
+      "name": "Name",
+      "name_placeholder": "e.g. Building permit application submitted",
+      "name_required": "Name is required",
+      "name_too_long": "Name must not exceed 255 characters",
+      "date": "Date",
+      "date_required": "Date is required",
+      "color": "Color",
+      "custom_color": "Custom color",
+      "color_invalid": "Color must be a hex value like #3F76FF",
+      "description": "Description",
+      "description_placeholder": "Short note (optional)",
+      "too_long": "Text is too long"
+    },
+    "delete_modal": {
+      "title": "Delete milestone",
+      "description": "The milestone \"{name}\" will be deleted. Linked work items are kept, only their link to the milestone is removed.",
+      "deleting": "Deleting"
+    },
+    "toast": {
+      "created": "Milestone created.",
+      "updated": "Milestone updated.",
+      "deleted": "Milestone deleted.",
+      "moved": "\"{name}\" moved to {date}.",
+      "error": "The milestone could not be saved. Please try again.",
+      "delete_error": "The milestone could not be deleted. Please try again.",
+      "load_error": "Milestones could not be loaded.",
+      "link_error": "The milestones of the work item could not be updated."
+    }
+  }
+}

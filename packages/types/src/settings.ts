@@ -36,6 +36,7 @@ export type TProjectSettingsTabs =
   | "features_intake"
   | "states"
   | "labels"
+  | "milestones"
   | "estimates"
   | "automations"
   | "recurring_work_items";
