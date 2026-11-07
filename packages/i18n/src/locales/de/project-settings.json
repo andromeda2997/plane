@@ -65,6 +65,13 @@
       "new": "Neues Schätzungssystem",
       "create": {
         "custom": "Benutzerdefiniert",
+        "custom_description": "Eigene Werte von Grund auf anlegen.",
+        "time_input": {
+          "hours": "Stunden",
+          "minutes": "Minuten",
+          "hours_unit": "Std.",
+          "minutes_unit": "Min."
+        },
         "start_from_scratch": "Von Grund auf neu",
         "choose_template": "Vorlage wählen",
         "choose_estimate_system": "Schätzungssystem wählen",
@@ -158,7 +165,9 @@
         },
         "time": {
           "label": "Zeit",
-          "hours": "Stunden"
+          "hours": "Stunden",
+          "quick_to_full_day": "Kurz bis ganzer Tag",
+          "custom": "Benutzerdefiniert"
         }
       },
       "edit": {

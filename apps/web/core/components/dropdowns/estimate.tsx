@@ -107,7 +107,10 @@ export const EstimateDropdown = observer(function EstimateDropdown(props: Props)
       if (currentEstimatePoint)
         return {
           value: currentEstimatePoint.id,
-          query: `${currentEstimatePoint?.value}`,
+          query:
+            currentActiveEstimate?.type === EEstimateSystem.TIME
+              ? `${currentEstimatePoint?.value} ${convertMinutesToHoursMinutesString(Number(currentEstimatePoint.value))}`
+              : `${currentEstimatePoint?.value}`,
           content: (
             <div className="flex items-center gap-2">
               <EstimatePropertyIcon className="h-3 w-3 flex-shrink-0" />

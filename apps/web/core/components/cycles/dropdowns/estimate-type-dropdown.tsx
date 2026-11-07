@@ -28,7 +28,9 @@ export const EstimateTypeDropdown = observer(function EstimateTypeDropdown(props
   const { areEstimateEnabledByProjectId, currentProjectEstimateType } = useProjectEstimates();
   const isCurrentProjectEstimateEnabled = projectId && areEstimateEnabledByProjectId(projectId) ? true : false;
   return (getIsPointsDataAvailable(cycleId) || isCurrentProjectEstimateEnabled) &&
-    currentProjectEstimateType !== EEstimateSystem.CATEGORIES ? (
+    // the backend only aggregates estimates of type points for cycles
+    currentProjectEstimateType !== EEstimateSystem.CATEGORIES &&
+    currentProjectEstimateType !== EEstimateSystem.TIME ? (
     <div className="relative flex items-center gap-2">
       <CustomSelect
         value={value}
