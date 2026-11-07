@@ -201,6 +201,29 @@ class TestProgressAndLinks:
         data = session_client.get(f"{_base(workspace, project)}/milestones/").json()[0]
         assert (data["total_issues"], data["completed_issues"], data["cancelled_issues"]) == (4, 2, 1)
 
+    def test_progress_is_counted_per_milestone_with_shared_items(self, session_client, workspace, project, states):
+        base = _base(workspace, project)
+        a = _create(session_client, workspace, project, name="A", date="2026-12-01").json()["id"]
+        b = _create(session_client, workspace, project, name="B", date="2026-12-02").json()["id"]
+        shared = _issue(project, states["done"], "in A und B")
+        only_a = _issue(project, states["todo"], "nur A")
+        relinked = _issue(project, states["cancelled"], "neu verknüpft in B")
+        session_client.post(
+            f"{base}/milestones/{a}/issues/", {"issue_ids": [str(shared.id), str(only_a.id)]}, format="json"
+        )
+        session_client.post(
+            f"{base}/milestones/{b}/issues/", {"issue_ids": [str(shared.id), str(relinked.id)]}, format="json"
+        )
+        # lösen und neu verknüpfen → eine soft-gelöschte und eine aktive Zeile
+        session_client.delete(f"{base}/milestones/{b}/issues/{relinked.id}/")
+        session_client.post(f"{base}/milestones/{b}/issues/", {"issue_ids": [str(relinked.id)]}, format="json")
+        assert MilestoneIssue.all_objects.filter(milestone_id=b, issue=relinked).count() == 2
+
+        data = {m["name"]: m for m in session_client.get(f"{base}/milestones/").json()}
+        counts = lambda m: (m["total_issues"], m["completed_issues"], m["cancelled_issues"])  # noqa: E731
+        assert counts(data["A"]) == (2, 1, 0)
+        assert counts(data["B"]) == (2, 1, 1)
+
     def test_link_is_idempotent_and_can_be_removed_and_relinked(self, session_client, workspace, project, states):
         milestone_id = _create(session_client, workspace, project).json()["id"]
         issue = _issue(project, states["todo"])
