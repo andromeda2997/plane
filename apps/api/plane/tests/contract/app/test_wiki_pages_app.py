@@ -269,3 +269,36 @@ class TestWikiNavigationPreference:
         assert response.status_code == status.HTTP_200_OK
         response = session_client.get(f"/api/workspaces/{workspace.slug}/sidebar-preferences/")
         assert response.data["wiki"]["is_pinned"] is False
+
+
+@pytest.mark.contract
+class TestWikiPageAssets:
+    @pytest.mark.django_db
+    def test_image_upload_for_wiki_page(self, session_client, workspace, create_user):
+        from plane.db.models import FileAsset
+
+        page = _wiki_page(workspace, create_user)
+        response = session_client.post(
+            f"/api/assets/v2/workspaces/{workspace.slug}/",
+            {
+                "name": "grundriss.png",
+                "type": "image/png",
+                "size": 1024,
+                "entity_type": "PAGE_DESCRIPTION",
+                "entity_identifier": str(page.id),
+            },
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK, response.data
+        asset_id = response.data["asset_id"]
+        asset = FileAsset.objects.get(pk=asset_id)
+        assert asset.page_id == page.id
+        assert asset.project_id is None
+
+        response = session_client.patch(f"/api/assets/v2/workspaces/{workspace.slug}/{asset_id}/", {}, format="json")
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        # Gäste (lesend) dürfen das Bild abrufen
+        _, guest = _member_client(workspace, role=5)
+        response = guest.get(f"/api/assets/v2/workspaces/{workspace.slug}/{asset_id}/")
+        assert response.status_code == status.HTTP_302_FOUND

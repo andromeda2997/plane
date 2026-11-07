@@ -145,7 +145,7 @@ class PageViewSet(BaseViewSet):
 
     def create(self, request, slug, project_id):
         parent_id = request.data.get("parent", None)
-        if parent_id and not get_project_parent_page(slug, project_id, parent_id):
+        if parent_id and not get_project_parent_page(slug, project_id, parent_id, request.user):
             return Response(
                 {"error": "Parent page not found in this project"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -189,7 +189,7 @@ class PageViewSet(BaseViewSet):
 
             parent = request.data.get("parent", None)
             if parent:
-                if not get_project_parent_page(slug, project_id, parent):
+                if not get_project_parent_page(slug, project_id, parent, request.user):
                     return Response(
                         {"error": "Parent page not found in this project"},
                         status=status.HTTP_400_BAD_REQUEST,

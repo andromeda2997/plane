@@ -15,7 +15,7 @@ from unittest import mock
 import pytest
 from rest_framework import status
 
-from plane.db.models import Page, Project, ProjectMember, ProjectPage
+from plane.db.models import Page, Project, ProjectMember, ProjectPage, User
 
 
 @pytest.fixture(autouse=True)
@@ -134,3 +134,18 @@ class TestProjectSubPages:
         leaf.refresh_from_db()
         assert leaf.archived_at is None
         assert leaf.parent_id == top.id
+
+
+@pytest.mark.contract
+class TestProjectSubPageVisibility:
+    @pytest.mark.django_db
+    def test_cannot_attach_to_foreign_private_page(self, session_client, workspace, project, create_user):
+        other = User.objects.create(email="other@plane.so", username="other_user")
+        ProjectMember.objects.create(workspace=workspace, project=project, member=other, role=15, is_active=True)
+        private = Page.objects.create(workspace=workspace, owned_by=other, access=Page.PRIVATE_ACCESS, name="Privat")
+        ProjectPage.objects.create(workspace=workspace, project=project, page=private)
+
+        response = session_client.post(
+            _url(workspace.slug, project.id), {"name": "Kind", "parent": str(private.id)}, format="json"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

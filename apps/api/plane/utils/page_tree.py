@@ -11,6 +11,7 @@ gemeinsam genutzt.
 # Django imports
 from django.core.exceptions import ValidationError
 from django.db import connection
+from django.db.models import Q
 
 # Module imports
 from plane.db.models import Page
@@ -43,11 +44,12 @@ def is_invalid_parent(page_id, parent_id):
     return str(parent_id) in {str(pk) for pk in get_descendant_page_ids(page_id)}
 
 
-def get_project_parent_page(slug, project_id, parent_id):
+def get_project_parent_page(slug, project_id, parent_id, user):
     """Übergeordnete Seite im selben Projekt (aktive Projektzuordnung,
-    nicht archiviert) oder None."""
+    nicht archiviert, für den Nutzer sichtbar) oder None."""
     try:
         return Page.objects.filter(
+            Q(owned_by=user) | Q(access=Page.PUBLIC_ACCESS),
             pk=parent_id,
             workspace__slug=slug,
             project_pages__project_id=project_id,
