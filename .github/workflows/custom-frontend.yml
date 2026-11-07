@@ -81,5 +81,5 @@ jobs:
             VITE_LIVE_BASE_URL=
             VITE_SPACE_BASE_URL=
             VITE_WEB_BASE_URL=
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=custom-frontend
+          cache-to: type=gha,mode=max,scope=custom-frontend

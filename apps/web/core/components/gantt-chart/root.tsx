@@ -35,6 +35,10 @@ type GanttChartRootProps = {
   showAllBlocks?: boolean;
   showToday?: boolean;
   isEpic?: boolean;
+  /** zusätzliche Ebene über dem Zeitstrahl (z. B. Meilenstein-Linien), absolut positioniert */
+  chartOverlay?: React.ReactNode;
+  /** zusätzliche Aktionen im Kopf des Diagramms */
+  headerActions?: React.ReactNode;
 };
 
 export const GanttChartRoot = observer(function GanttChartRoot(props: GanttChartRootProps) {
@@ -61,6 +65,8 @@ export const GanttChartRoot = observer(function GanttChartRoot(props: GanttChart
     quickAdd,
     updateBlockDates,
     isEpic = false,
+    chartOverlay,
+    headerActions,
   } = props;
 
   const { setBlockIds } = useTimeLineChartStore();
@@ -94,6 +100,8 @@ export const GanttChartRoot = observer(function GanttChartRoot(props: GanttChart
       showToday={showToday}
       updateBlockDates={updateBlockDates}
       isEpic={isEpic}
+      chartOverlay={chartOverlay}
+      headerActions={headerActions}
     />
   );
 });

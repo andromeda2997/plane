@@ -55,6 +55,7 @@ from plane.bgtasks.page_version_task import track_page_version
 from plane.bgtasks.recent_visited_task import recent_visited_task
 from plane.bgtasks.copy_s3_object import copy_s3_objects_of_description_and_assets
 from plane.app.permissions import ProjectPagePermission
+from plane.utils.page_tree import get_project_parent_page, is_invalid_parent, next_sort_order
 
 
 def unarchive_archive_page_and_descendants(page_id, archived_at):
@@ -95,7 +96,8 @@ class PageViewSet(BaseViewSet):
                 projects__project_projectmember__is_active=True,
                 projects__archived_at__isnull=True,
             )
-            .filter(parent__isnull=True)
+            # Unterseiten werden mitgeliefert, damit Liste/Baum und Detailansicht
+            # (retrieve, create-Antwort) auch für verschachtelte Seiten funktionieren.
             .filter(Q(owned_by=self.request.user) | Q(access=0))
             .prefetch_related("projects")
             .select_related("workspace")
@@ -142,6 +144,13 @@ class PageViewSet(BaseViewSet):
         )
 
     def create(self, request, slug, project_id):
+        parent_id = request.data.get("parent", None)
+        if parent_id and not get_project_parent_page(slug, project_id, parent_id, request.user):
+            return Response(
+                {"error": "Parent page not found in this project"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         serializer = PageSerializer(
             data=request.data,
             context={
@@ -154,7 +163,17 @@ class PageViewSet(BaseViewSet):
         )
 
         if serializer.is_valid():
-            serializer.save()
+            # neue Seiten landen bei manueller Sortierung am Ende ihrer Ebene (Seitenbaum)
+            serializer.save(
+                sort_order=next_sort_order(
+                    Page.objects.filter(
+                        workspace__slug=slug,
+                        project_pages__project_id=project_id,
+                        project_pages__deleted_at__isnull=True,
+                        parent_id=parent_id or None,
+                    )
+                )
+            )
             # capture the page transaction
             page_transaction.delay(
                 new_description_html=request.data.get("description_html", "<p></p>"),
@@ -180,12 +199,16 @@ class PageViewSet(BaseViewSet):
 
             parent = request.data.get("parent", None)
             if parent:
-                _ = Page.objects.get(
-                    pk=parent,
-                    workspace__slug=slug,
-                    projects__id=project_id,
-                    project_pages__deleted_at__isnull=True,
-                )
+                if not get_project_parent_page(slug, project_id, parent, request.user):
+                    return Response(
+                        {"error": "Parent page not found in this project"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                if is_invalid_parent(page.id, parent):
+                    return Response(
+                        {"error": "A page cannot be moved under itself or one of its sub pages"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
             # Only update access if the page owner is the requesting  user
             if page.access != request.data.get("access", page.access) and page.owned_by_id != request.user.id:
@@ -216,6 +239,8 @@ class PageViewSet(BaseViewSet):
 
     def retrieve(self, request, slug, project_id, page_id=None):
         page = self.get_queryset().filter(pk=page_id).first()
+        if page is None:
+            return Response({"error": "Page not found"}, status=status.HTTP_404_NOT_FOUND)
         project = Project.objects.get(pk=project_id)
         track_visit = request.query_params.get("track_visit", "true").lower() == "true"
 
@@ -408,13 +433,14 @@ class PageViewSet(BaseViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        # remove parent from all the children
+        # Unterseiten nicht mitlöschen, sondern eine Ebene nach oben ziehen
+        # (an die übergeordnete Seite der gelöschten Seite hängen).
         _ = Page.objects.filter(
             parent_id=page_id,
             projects__id=project_id,
             workspace__slug=slug,
             project_pages__deleted_at__isnull=True,
-        ).update(parent=None)
+        ).update(parent=page.parent_id)
 
         page.delete()
         # Delete the user favorite page
@@ -441,7 +467,6 @@ class PageViewSet(BaseViewSet):
                 projects__project_projectmember__is_active=True,
                 projects__archived_at__isnull=True,
             )
-            .filter(parent__isnull=True)
             .filter(Q(owned_by=request.user) | Q(access=0))
             .annotate(
                 project=Exists(

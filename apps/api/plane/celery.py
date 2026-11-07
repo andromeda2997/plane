@@ -94,6 +94,11 @@ app.conf.beat_schedule = {
     },
 }
 
+# Fork-Erweiterungen (plane/ext): eigene Beat-Einträge, siehe plane/ext/schedules.py
+from plane.ext.schedules import EXT_BEAT_SCHEDULE  # noqa: E402
+
+app.conf.beat_schedule.update(EXT_BEAT_SCHEDULE)
+
 
 # Setup logging
 @after_setup_logger.connect

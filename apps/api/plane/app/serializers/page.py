@@ -55,8 +55,10 @@ class PageSerializer(BaseSerializer):
             "logo_props",
             "label_ids",
             "project_ids",
+            # Reihenfolge im Seitenbaum; wird nur über den Verschieben-Endpunkt gesetzt
+            "sort_order",
         ]
-        read_only_fields = ["workspace", "owned_by"]
+        read_only_fields = ["workspace", "owned_by", "sort_order"]
 
     def create(self, validated_data):
         labels = validated_data.pop("labels", None)

@@ -1,0 +1,51 @@
+{
+  "milestone": {
+    "label": "Meilenstein",
+    "no_milestone": "Kein Meilenstein",
+    "add": "Meilenstein",
+    "create": "Meilenstein anlegen",
+    "create_here": "Meilenstein hier anlegen",
+    "edit": "Meilenstein bearbeiten",
+    "edit_short": "Bearbeiten",
+    "save": "Speichern",
+    "delete": "Meilenstein löschen",
+    "settings_description": "Wichtige Termine des Projekts, z. B. der Abschluss einer Leistungsphase. Meilensteine erscheinen im Zeitstrahl als gestrichelte senkrechte Linien; Arbeitselemente werden in ihren Eigenschaften zugeordnet.",
+    "empty_title": "Noch keine Meilensteine",
+    "empty_description": "Legen Sie den ersten Meilenstein an, um einen wichtigen Termin des Projekts zu markieren.",
+    "empty_short": "Keine Meilensteine in diesem Projekt",
+    "progress_label": "Fortschritt",
+    "progress": "{done} von {total} Arbeitselementen erledigt",
+    "progress_none": "Keine verknüpften Arbeitselemente",
+    "overdue": "Überfällig: {count, plural, one {# offenes Arbeitselement} other {# offene Arbeitselemente}}",
+    "drag_hint": "Ziehen ändert das Datum, Klick öffnet die Bearbeitung",
+    "form": {
+      "name": "Name",
+      "name_placeholder": "z. B. Bauantrag eingereicht",
+      "name_required": "Name ist erforderlich",
+      "name_too_long": "Der Name darf höchstens 255 Zeichen lang sein",
+      "date": "Datum",
+      "date_required": "Datum ist erforderlich",
+      "color": "Farbe",
+      "custom_color": "Eigene Farbe",
+      "color_invalid": "Die Farbe muss ein Hex-Wert wie #3F76FF sein",
+      "description": "Beschreibung",
+      "description_placeholder": "Kurze Notiz (optional)",
+      "too_long": "Der Text ist zu lang"
+    },
+    "delete_modal": {
+      "title": "Meilenstein löschen",
+      "description": "Der Meilenstein „{name}“ wird gelöscht. Verknüpfte Arbeitselemente bleiben erhalten, nur ihre Zuordnung zum Meilenstein entfällt.",
+      "deleting": "Wird gelöscht"
+    },
+    "toast": {
+      "created": "Meilenstein angelegt.",
+      "updated": "Meilenstein gespeichert.",
+      "deleted": "Meilenstein gelöscht.",
+      "moved": "„{name}“ auf {date} verschoben.",
+      "error": "Der Meilenstein konnte nicht gespeichert werden. Bitte erneut versuchen.",
+      "delete_error": "Der Meilenstein konnte nicht gelöscht werden. Bitte erneut versuchen.",
+      "load_error": "Meilensteine konnten nicht geladen werden.",
+      "link_error": "Die Meilensteine des Arbeitselements konnten nicht gespeichert werden."
+    }
+  }
+}

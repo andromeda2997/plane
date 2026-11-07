@@ -263,6 +263,7 @@ Soft-Delete).
     # Fork-Erweiterungen (plane/ext)
     "plane.ext.recurring",
     "plane.ext.wiki",
+    "plane.ext.calendar_feed",
     # Third-party things
 ```
 
@@ -284,6 +285,7 @@ from django.urls import include, path
 urlpatterns = [
     path("", include("plane.ext.recurring.urls")),
     path("", include("plane.ext.wiki.urls")),
+    path("", include("plane.ext.calendar_feed.urls")),
 ]
 ```
 
@@ -337,7 +339,7 @@ python manage.py makemigrations --check --dry-run   # vor jedem Commit: nichts v
   from celery.schedules import crontab
 
   EXT_BEAT_SCHEDULE = {
-      "ext-recurring-create-work-items": {
+      "check-every-fifteen-minutes-to-create-recurring-work-items": {
           "task": "plane.ext.recurring.tasks.create_recurring_work_items",
           "schedule": crontab(minute="*/15"),
       },

@@ -5,7 +5,7 @@
  */
 
 import type { LucideIcon } from "lucide-react";
-import { Users, Zap } from "lucide-react";
+import { Repeat, Users, Zap } from "lucide-react";
 // plane imports
 import type { ISvgIcons } from "@plane/propel/icons";
 import {
@@ -20,11 +20,14 @@ import {
 } from "@plane/propel/icons";
 import type { TProjectSettingsTabs } from "@plane/types";
 // components
+import { CalendarFeedIcon } from "@/components/calendar-feed/icon";
 import { SettingIcon } from "@/components/icons/attachment";
+import { MilestoneIcon } from "@/components/milestones/icon";
 
 export const PROJECT_SETTINGS_ICONS: Record<TProjectSettingsTabs, LucideIcon | React.FC<ISvgIcons>> = {
   general: SettingIcon,
   members: Users,
+  calendar_feed: CalendarFeedIcon,
   features_cycles: CycleIcon,
   features_modules: ModuleIcon,
   features_views: ViewsIcon,
@@ -32,6 +35,8 @@ export const PROJECT_SETTINGS_ICONS: Record<TProjectSettingsTabs, LucideIcon | R
   features_intake: IntakeIcon,
   states: StatePropertyIcon,
   labels: LabelPropertyIcon,
+  milestones: MilestoneIcon,
   estimates: EstimatePropertyIcon,
   automations: Zap,
+  recurring_work_items: Repeat,
 };

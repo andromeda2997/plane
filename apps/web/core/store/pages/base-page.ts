@@ -9,12 +9,20 @@ import { action, computed, makeObservable, observable, reaction, runInAction } f
 // plane imports
 import { EPageAccess } from "@plane/constants";
 import type { TChangeHandlerProps } from "@plane/propel/emoji-icon-picker";
-import type { TDocumentPayload, TLogoProps, TNameDescriptionLoader, TPage } from "@plane/types";
+import type {
+  TDocumentPayload,
+  TLogoProps,
+  TNameDescriptionLoader,
+  TPage,
+  TPageMovePayload,
+  TPageMoveResponse,
+} from "@plane/types";
 // plane web store
 import { ExtendedBasePage } from "@/store/pages/extended-base-page";
 import type { RootStore } from "@/store/root.store";
 // local imports
 import { PageEditorInstance } from "./page-editor-info";
+import { PAGE_SORT_ORDER_STEP, getDescendantIds, getEndSortOrder } from "./page-tree";
 
 export type TBasePage = TPage & {
   // observables
@@ -41,6 +49,9 @@ export type TBasePage = TPage & {
   addToFavorites: () => Promise<void>;
   removePageFromFavorites: () => Promise<void>;
   duplicate: () => Promise<TPage | undefined>;
+  setParent: (parentId: string | null) => Promise<void>;
+  setPosition: (payload: TPageMovePayload & { sort_order: number }) => Promise<void>;
+  getPeerPages: () => Record<string, TBasePage>;
   mutateProperties: (data: Partial<TPage>, shouldUpdateName?: boolean) => void;
   setSyncingStatus: (status: "syncing" | "synced" | "error") => void;
   // sub-store
@@ -71,6 +82,8 @@ export type TBasePageServices = {
   }>;
   restore: () => Promise<void>;
   duplicate: () => Promise<TPage>;
+  // parent + sort_order in einem Aufruf (Seitenbaum)
+  updatePosition: (payload: TPageMovePayload) => Promise<TPageMoveResponse>;
 };
 
 export type TPageInstance = TBasePage &
@@ -97,6 +110,10 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   archived_at: string | null | undefined;
   workspace: string | undefined;
   project_ids?: string[] | undefined;
+  // übergeordnete Seite; bewusst nicht in asJSON, damit update() keinen veralteten Wert zurückschreibt
+  parent: string | null = null;
+  // Reihenfolge im Seitenbaum; ebenfalls nicht in asJSON (wird nur über setPosition() gesetzt)
+  sort_order: number | undefined = undefined;
   created_by: string | undefined;
   updated_by: string | undefined;
   created_at: Date | undefined;
@@ -134,6 +151,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
     this.archived_at = page?.archived_at || undefined;
     this.workspace = page?.workspace || undefined;
     this.project_ids = page?.project_ids || undefined;
+    this.parent = page?.parent ?? null;
+    this.sort_order = page?.sort_order ?? undefined;
     this.created_by = page?.created_by || undefined;
     this.updated_by = page?.updated_by || undefined;
     this.created_at = page?.created_at || undefined;
@@ -159,6 +178,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       archived_at: observable.ref,
       workspace: observable.ref,
       project_ids: observable,
+      parent: observable.ref,
+      sort_order: observable.ref,
       created_by: observable.ref,
       updated_by: observable.ref,
       created_at: observable.ref,
@@ -186,6 +207,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       addToFavorites: action,
       removePageFromFavorites: action,
       duplicate: action,
+      setParent: action,
+      setPosition: action,
       mutateProperties: action,
     });
 
@@ -285,7 +308,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       runInAction(() => {
         Object.keys(pageData).forEach((key) => {
           const currentPageKey = key as keyof TPage;
-          set(this, key, currentPage?.[currentPageKey] || undefined);
+          set(this, key, (currentPage as Partial<TPage> | undefined)?.[currentPageKey] || undefined);
         });
       });
       throw error;
@@ -420,6 +443,14 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
           this.archived_at = response.archived_at;
         });
       }
+      // das Backend archiviert Unterseiten mit -> lokalen Stand angleichen
+      const archivedAt = this.archived_at;
+      const peers = this.getPeerPages();
+      runInAction(() => {
+        getDescendantIds(peers, this.id as string).forEach((id) => {
+          if (peers[id] && !peers[id].archived_at) peers[id].archived_at = archivedAt;
+        });
+      });
     } catch (error) {
       console.error(error);
       runInAction(() => {
@@ -442,6 +473,16 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       if (shouldSync) {
         await this.services.restore();
       }
+      // wie im Backend: Unterseiten mit wiederherstellen; ist die Elternseite noch archiviert,
+      // landet die Seite auf der obersten Ebene
+      const peers = this.getPeerPages();
+      runInAction(() => {
+        if (this.parent && peers[this.parent]?.archived_at) this.parent = null;
+        if (this.id)
+          getDescendantIds(peers, this.id).forEach((id) => {
+            if (peers[id]) peers[id].archived_at = null;
+          });
+      });
     } catch (error) {
       console.error(error);
       runInAction(() => {
@@ -527,6 +568,83 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       });
       throw error;
     });
+  };
+
+  /**
+   * @description Seite unter eine andere Seite verschieben (null = oberste Ebene)
+   */
+  setParent = async (parentId: string | null) => {
+    if (!this.id) return;
+    // ans Ende der neuen Ebene
+    const projectId = this.project_ids?.[0];
+    const sortOrder = getEndSortOrder(
+      this.getPeerPages(),
+      parentId,
+      this.id,
+      (p) => p.workspace === this.workspace && (!projectId || !!p.project_ids?.includes(projectId))
+    );
+    await this.setPosition({ parent: parentId, sort_order: sortOrder });
+  };
+
+  /**
+   * @description Seite umhängen und einsortieren (Drag-and-Drop im Seitenbaum). Optimistisch: der neue
+   * Stand ist sofort sichtbar; bei einem Fehler wird alles (auch neu nummerierte Geschwister)
+   * zurückgesetzt und der Fehler weitergereicht (Toast beim Aufrufer).
+   * @param payload parent + sort_order für die sofortige Anzeige; mit order nummeriert das Backend die
+   * Ziel-Ebene neu (wenn die Nachbarn gleichauf liegen) und sort_order ist nur ein Platzhalter.
+   */
+  setPosition = async (payload: TPageMovePayload & { sort_order: number }) => {
+    if (!this.id) return;
+    const pageId = this.id;
+    const peers = this.getPeerPages();
+    // Schnappschuss für den Rollback
+    const previous = { parent: this.parent, sort_order: this.sort_order };
+    const previousSiblingOrders = new Map<string, number | undefined>();
+    payload.order?.forEach((id) => {
+      if (id !== pageId && peers[id]) previousSiblingOrders.set(id, peers[id].sort_order);
+    });
+
+    runInAction(() => {
+      this.parent = payload.parent;
+      this.sort_order = payload.sort_order;
+      // bei neuer Reihenfolge: gleiche Nummerierung wie im Backend
+      payload.order?.forEach((id, index) => {
+        const value = (index + 1) * PAGE_SORT_ORDER_STEP;
+        if (id === pageId) this.sort_order = value;
+        else if (peers[id]) peers[id].sort_order = value;
+      });
+    });
+
+    try {
+      const response = await this.services.updatePosition(
+        payload.order ? { parent: payload.parent, order: payload.order } : payload
+      );
+      runInAction(() => {
+        this.parent = response.parent ?? null;
+        Object.entries(response.sort_orders ?? {}).forEach(([id, value]) => {
+          if (id === pageId) this.sort_order = value;
+          else if (peers[id]) peers[id].sort_order = value;
+        });
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.parent = previous.parent;
+        this.sort_order = previous.sort_order;
+        previousSiblingOrders.forEach((value, id) => {
+          if (peers[id]) peers[id].sort_order = value;
+        });
+      });
+      throw error;
+    }
+  };
+
+  /**
+   * @description alle Seiten des Stores, zu dem diese Seite gehört (Projekt-Seiten oder Wiki)
+   */
+  getPeerPages = (): Record<string, TBasePage> => {
+    if (!this.id) return {};
+    const candidates = [this.rootStore.projectPages?.data, this.rootStore.workspacePages?.data];
+    return (candidates.find((data) => !!data?.[this.id as string]) ?? {}) as Record<string, TBasePage>;
   };
 
   /**

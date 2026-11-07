@@ -152,5 +152,62 @@
         "label": "Benutzerdefiniertes Theme"
       }
     }
+  },
+  "calendar_feed": {
+    "settings_label": "Kalender abonnieren",
+    "title": "Kalender abonnieren",
+    "project_description": "Arbeitselemente dieses Projekts mit Start- oder Fälligkeitsdatum sowie Zyklen, Module und Meilensteine in Outlook, Teams oder einer anderen Kalender-App anzeigen.",
+    "profile_description": "Die Ihnen zugewiesenen Arbeitselemente eines Workspace in Outlook, Teams oder einer anderen Kalender-App anzeigen.",
+    "privacy_note": "Der Kalender enthält nur Titel, Kennung, Datum, Status und Link – keine Beschreibungen, Kommentare oder Personen. Wer die Adresse kennt, kann den Kalender lesen; behandeln Sie sie wie ein Passwort.",
+    "workspace_label": "Workspace",
+    "hide_completed": "Abgeschlossene und abgebrochene Arbeitselemente ausblenden",
+    "create": "Kalender-Link erzeugen",
+    "scope_my_work_items": "Meine Arbeitselemente",
+    "scope_project": "Projekt {identifier}",
+    "created": {
+      "title": "Kalender-Link erzeugt",
+      "description": "Kopieren Sie die Adresse jetzt. Aus Sicherheitsgründen wird sie nur einmal angezeigt.",
+      "copy": "Link kopieren",
+      "copied": "Kalender-Link in die Zwischenablage kopiert.",
+      "close": "Fertig"
+    },
+    "instructions": {
+      "title": "So abonnieren Sie den Kalender in Outlook",
+      "step_1": "Outlook im Web oder neues Outlook: Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren.",
+      "step_2": "Adresse einfügen, Namen und Farbe wählen, dann auf Importieren klicken.",
+      "step_3": "Teams nutzt Ihren Outlook-Kalender, die Einträge erscheinen dort ebenfalls.",
+      "delay": "Outlook aktualisiert abonnierte Kalender nur alle paar Stunden. Änderungen in Plane erscheinen daher mit Verzögerung."
+    },
+    "list": {
+      "title": "Ihre Kalender-Links",
+      "empty": "Sie haben noch keine Kalender-Links erzeugt.",
+      "created_at": "Erstellt {date}",
+      "last_used": "Zuletzt abgerufen {time}",
+      "never_used": "Noch nicht abgerufen",
+      "without_completed": "Ohne Abgeschlossene"
+    },
+    "actions": {
+      "regenerate": "Neu erzeugen",
+      "revoke": "Widerrufen"
+    },
+    "regenerate_modal": {
+      "title": "Kalender-Link neu erzeugen?",
+      "description": "Die alte Adresse funktioniert sofort nicht mehr. Sie müssen den Kalender mit der neuen Adresse neu abonnieren.",
+      "confirm": "Neu erzeugen",
+      "confirming": "Wird erzeugt"
+    },
+    "revoke_modal": {
+      "title": "Kalender-Link widerrufen?",
+      "description": "Die Adresse funktioniert sofort nicht mehr. Abonnierte Kalender werden nicht mehr aktualisiert.",
+      "confirm": "Widerrufen",
+      "confirming": "Wird widerrufen"
+    },
+    "toasts": {
+      "load_error": "Kalender-Links konnten nicht geladen werden.",
+      "create_error": "Der Kalender-Link konnte nicht erzeugt werden.",
+      "revoke_success": "Kalender-Link widerrufen.",
+      "revoke_error": "Der Kalender-Link konnte nicht widerrufen werden.",
+      "regenerate_error": "Der Kalender-Link konnte nicht neu erzeugt werden."
+    }
   }
 }

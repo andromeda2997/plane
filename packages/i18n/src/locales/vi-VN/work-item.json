@@ -266,6 +266,16 @@
       "click_to_downvote": "Nhấp để bỏ phiếu chống",
       "click_to_view_upvotes": "Nhấp để xem phiếu thuận",
       "click_to_view_downvotes": "Nhấp để xem phiếu chống"
+    },
+    "dependency": {
+      "handle_start": "Drag onto another work item to connect from the start",
+      "handle_end": "Drag onto another work item to connect from the end",
+      "create_error": "The dependency could not be created.",
+      "remove_title": "Remove dependency",
+      "remove": "Remove",
+      "removing": "Removing",
+      "remove_description": "The work items stay unchanged, only the dependency between them is removed.",
+      "remove_error": "The dependency could not be removed."
     }
   },
   "sub_work_item": {

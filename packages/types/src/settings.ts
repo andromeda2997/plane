@@ -8,7 +8,13 @@
 import type { EUserProjectRoles } from ".";
 import type { EUserWorkspaceRoles } from "./workspace";
 
-export type TProfileSettingsTabs = "general" | "preferences" | "notifications" | "security" | "api-tokens";
+export type TProfileSettingsTabs =
+  | "general"
+  | "preferences"
+  | "notifications"
+  | "security"
+  | "api-tokens"
+  | "calendar-feeds";
 
 export type TWorkspaceSettingsTabs = "general" | "members" | "billing-and-plans" | "export" | "webhooks";
 export type TWorkspaceSettingsItem = {
@@ -22,6 +28,7 @@ export type TWorkspaceSettingsItem = {
 export type TProjectSettingsTabs =
   | "general"
   | "members"
+  | "calendar_feed"
   | "features_cycles"
   | "features_modules"
   | "features_views"
@@ -29,8 +36,10 @@ export type TProjectSettingsTabs =
   | "features_intake"
   | "states"
   | "labels"
+  | "milestones"
   | "estimates"
-  | "automations";
+  | "automations"
+  | "recurring_work_items";
 export type TProjectSettingsItem = {
   key: TProjectSettingsTabs;
   i18n_label: string;

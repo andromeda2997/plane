@@ -451,6 +451,11 @@ def track_estimate_points(
             if requested_data.get("estimate_point") is not None
             else None
         )
+        # Beim Entfernen ist new_estimate None: Typ aus der alten Schätzung nehmen.
+        # Ist auch der alte Punkt nicht mehr auffindbar (soft-gelöscht), auf das
+        # Legacy-Feld "estimate_point" zurückfallen, das das Frontend weiterhin kennt.
+        estimate_for_type = new_estimate or old_estimate
+        estimate_field = "estimate_" + estimate_for_type.estimate.type if estimate_for_type else "estimate_point"
         issue_activities.append(
             IssueActivity(
                 issue_id=issue_id,
@@ -466,7 +471,7 @@ def track_estimate_points(
                 ),
                 old_value=old_estimate.value if old_estimate else None,
                 new_value=new_estimate.value if new_estimate else None,
-                field="estimate_" + new_estimate.estimate.type,
+                field=estimate_field,
                 project_id=project_id,
                 workspace_id=workspace_id,
                 comment="updated the estimate point to ",

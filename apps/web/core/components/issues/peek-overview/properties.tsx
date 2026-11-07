@@ -41,6 +41,8 @@ import type { TIssueOperations } from "../issue-detail";
 import { IssueCycleSelect } from "../issue-detail/cycle-select";
 import { IssueLabel } from "../issue-detail/label";
 import { IssueModuleSelect } from "../issue-detail/module-select";
+import { IssueMilestoneSelect } from "@/components/milestones/issue-select";
+import { MilestoneIcon } from "@/components/milestones/icon";
 
 interface IPeekOverviewProperties {
   workspaceSlug: string;
@@ -215,6 +217,16 @@ export const PeekOverviewProperties = observer(function PeekOverviewProperties(p
             />
           </SidebarPropertyListItem>
         )}
+
+        <SidebarPropertyListItem icon={MilestoneIcon} label={t("milestone.label")}>
+          <IssueMilestoneSelect
+            className="w-full grow"
+            workspaceSlug={workspaceSlug}
+            projectId={projectId}
+            issueId={issueId}
+            disabled={disabled}
+          />
+        </SidebarPropertyListItem>
 
         {projectDetails?.cycle_view && (
           <SidebarPropertyListItem icon={CycleIcon} label={t("common.cycle")} appendElement={null}>

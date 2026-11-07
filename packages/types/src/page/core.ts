@@ -22,6 +22,10 @@ export type TPage = {
   label_ids: string[] | undefined;
   name: string | undefined;
   owned_by: string | undefined;
+  // übergeordnete Seite (Unterseiten / Seitenbaum)
+  parent?: string | null;
+  // Reihenfolge im Seitenbaum (manuelle Sortierung, Drag-and-Drop)
+  sort_order?: number;
   project_ids?: string[] | undefined;
   updated_at: Date | undefined;
   updated_by: string | undefined;
@@ -33,7 +37,8 @@ export type TPage = {
 // page filters
 export type TPageNavigationTabs = "public" | "private" | "archived";
 
-export type TPageFiltersSortKey = "name" | "created_at" | "updated_at" | "opened_at";
+// "manual" = Reihenfolge per Drag-and-Drop (sort_order)
+export type TPageFiltersSortKey = "manual" | "name" | "created_at" | "updated_at" | "opened_at";
 
 export type TPageFiltersSortBy = "asc" | "desc";
 
@@ -49,6 +54,23 @@ export type TPageFilters = {
   sortKey: TPageFiltersSortKey;
   sortBy: TPageFiltersSortBy;
   filters?: TPageFilterProps;
+};
+
+// Verschieben + Sortieren in einem Aufruf (POST …/pages/<id>/position/)
+export type TPageMovePayload = {
+  parent: string | null;
+  // Mittelwert der neuen Nachbarn …
+  sort_order?: number;
+  // … oder, wenn die Nachbarn gleichauf liegen, die komplette Reihenfolge der Ziel-Ebene
+  order?: string[];
+};
+
+export type TPageMoveResponse = {
+  id: string;
+  parent: string | null;
+  sort_order: number;
+  // alle Seiten, deren sort_order sich geändert hat (inkl. der verschobenen)
+  sort_orders: Record<string, number>;
 };
 
 export type TPageEmbedType = "mention" | "issue";

@@ -111,5 +111,36 @@
       "success_message": "Seite aus Sammlung entfernt.",
       "error_message": "Die Seite konnte nicht aus der Sammlung entfernt werden. Bitte versuchen Sie es erneut."
     }
+  },
+  "page_tree": {
+    "add_sub_page": "Unterseite anlegen",
+    "move_under": "Verschieben unter …",
+    "expand": "Unterseiten aufklappen",
+    "collapse": "Unterseiten zuklappen",
+    "sub_pages_count": "{count, plural, one {# Unterseite} other {# Unterseiten}}",
+    "move_modal": {
+      "title": "„{name}“ verschieben unter …",
+      "search_placeholder": "Seiten durchsuchen",
+      "top_level": "Oberste Ebene (keine übergeordnete Seite)",
+      "no_results": "Keine passenden Seiten",
+      "current_parent": "aktuell",
+      "submit": "Verschieben",
+      "submitting": "Wird verschoben"
+    },
+    "toasts": {
+      "moved": "Seite verschoben.",
+      "move_failed": "Seite konnte nicht verschoben werden. Bitte erneut versuchen.",
+      "sub_page_created": "Unterseite angelegt.",
+      "sub_page_failed": "Unterseite konnte nicht angelegt werden. Bitte erneut versuchen.",
+      "archived_with_children": "Seite und {count, plural, one {# Unterseite} other {# Unterseiten}} archiviert."
+    },
+    "delete_hint": "Unterseiten werden nicht gelöscht. Sie bleiben im Archiv und rücken eine Ebene nach oben.",
+    "archive_hint": "Unterseiten werden zusammen mit dieser Seite archiviert.",
+    "sort_manual": "Manuell",
+    "dnd": {
+      "drag_to_move": "Ziehen zum Sortieren oder Unterordnen",
+      "drop_top_level": "Hier ablegen: oberste Ebene, ganz oben",
+      "drop_top_level_end": "Hier ablegen: oberste Ebene, ganz unten"
+    }
   }
 }

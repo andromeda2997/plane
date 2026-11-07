@@ -109,5 +109,22 @@
     "nested_pages_download_banner": {
       "title": "Paginile imbricate necesită un plan plătit. Actualizează pentru a debloca."
     }
+  },
+  "wiki_light": {
+    "nav_label": "Wiki",
+    "title": "Wiki",
+    "description": "Workspace-wide pages without a project, e.g. office standards, templates and how-tos.",
+    "new_page": "New page",
+    "empty_state": {
+      "title": "Start your workspace wiki",
+      "description": "Collect office standards, checklists and guides in one place for everyone in the workspace. Pages can be nested.",
+      "cta": "Create first page"
+    },
+    "not_found": {
+      "title": "Page not found",
+      "description": "The page you are looking for doesn't exist or you don't have permission to view it.",
+      "back": "Back to wiki"
+    },
+    "read_only_hint": "Guests can read wiki pages but not edit them."
   }
 }

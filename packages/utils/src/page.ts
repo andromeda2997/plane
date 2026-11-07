@@ -31,6 +31,20 @@ export const filterPagesByPageType = (pageType: TPageNavigationTabs, pages: TPag
     return true;
   });
 
+// Standardwert von Page.sort_order im Backend
+export const PAGE_DEFAULT_SORT_ORDER = 65535;
+
+/**
+ * @description manuelle Reihenfolge (Seitenbaum): sort_order, bei Gleichstand Erstellungszeit, dann id.
+ * Muss zur Berechnung der Drop-Position passen (gleiche Reihenfolge wie in der Anzeige).
+ */
+export const orderPagesManually = <T extends Pick<TPage, "sort_order" | "created_at" | "id">>(pages: T[]): T[] =>
+  sortBy(pages, [
+    (m) => m.sort_order ?? PAGE_DEFAULT_SORT_ORDER,
+    (m) => (m.created_at ? new Date(m.created_at).getTime() : 0),
+    (m) => m.id ?? "",
+  ]);
+
 /**
  * @description orders pages based on their status
  * @param {TPage[]} pages
@@ -46,17 +60,19 @@ export const orderPages = (
   let orderedPages: TPage[] = [];
   if (pages.length === 0 || !sortByKey) return [];
 
+  if (sortByKey === "manual") return orderPagesManually(pages);
+
   if (sortByKey === "name") {
     orderedPages = sortBy(pages, [(m) => m.name?.toLowerCase()]);
-    if (sortByOrder === "desc") orderedPages = orderedPages.reverse();
+    if (sortByOrder === "desc") orderedPages = orderedPages.toReversed();
   }
   if (sortByKey === "created_at") {
     orderedPages = sortBy(pages, [(m) => m.created_at]);
-    if (sortByOrder === "desc") orderedPages = orderedPages.reverse();
+    if (sortByOrder === "desc") orderedPages = orderedPages.toReversed();
   }
   if (sortByKey === "updated_at") {
     orderedPages = sortBy(pages, [(m) => m.updated_at]);
-    if (sortByOrder === "desc") orderedPages = orderedPages.reverse();
+    if (sortByOrder === "desc") orderedPages = orderedPages.toReversed();
   }
 
   return orderedPages;

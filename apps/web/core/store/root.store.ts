@@ -22,6 +22,8 @@ import { WorkspaceRootStore } from "@/store/workspace";
 import type { ITimelineStore } from "./timeline/timeline.store";
 import { TimeLineStore } from "./timeline/timeline.store";
 // stores
+import type { ICalendarFeedStore } from "./calendar-feed.store";
+import { CalendarFeedStore } from "./calendar-feed.store";
 import type { ICycleStore } from "./cycle.store";
 import { CycleStore } from "./cycle.store";
 import type { ICycleFilterStore } from "./cycle_filter.store";
@@ -44,8 +46,12 @@ import type { IIssueRootStore } from "./issue/root.store";
 import { IssueRootStore } from "./issue/root.store";
 import type { ILabelStore } from "./label.store";
 import { LabelStore } from "./label.store";
+import type { IRecurringWorkItemStore } from "./recurring-work-item.store";
+import { RecurringWorkItemStore } from "./recurring-work-item.store";
 import type { IMemberRootStore } from "./member";
 import { MemberRootStore } from "./member";
+import type { IMilestoneStore } from "./milestone.store";
+import { MilestoneStore } from "./milestone.store";
 import type { IModuleStore } from "./module.store";
 import { ModulesStore } from "./module.store";
 import type { IModuleFilterStore } from "./module_filter.store";
@@ -56,6 +62,8 @@ import type { IWorkspaceNotificationStore } from "./notifications/workspace-noti
 import { WorkspaceNotificationStore } from "./notifications/workspace-notifications.store";
 import type { IProjectPageStore } from "./pages/project-page.store";
 import { ProjectPageStore } from "./pages/project-page.store";
+import type { IWorkspacePageStore } from "./pages/workspace-page.store";
+import { WorkspacePageStore } from "./pages/workspace-page.store";
 import type { IProjectRootStore } from "./project";
 import { ProjectRootStore } from "./project";
 import type { IProjectViewStore } from "./project-view.store";
@@ -85,9 +93,11 @@ export class CoreRootStore {
   issue: IIssueRootStore;
   state: IStateStore;
   label: ILabelStore;
+  recurringWorkItem: IRecurringWorkItemStore;
   dashboard: IDashboardStore;
   analytics: IAnalyticsStore;
   projectPages: IProjectPageStore;
+  workspacePages: IWorkspacePageStore;
   router: IRouterStore;
   commandPalette: ICommandPaletteStore;
   theme: IThemeStore;
@@ -103,6 +113,8 @@ export class CoreRootStore {
   workItemFilters: IWorkItemFilterStore;
   powerK: IPowerKStore;
   timelineStore: ITimelineStore;
+  calendarFeed: ICalendarFeedStore;
+  milestone: IMilestoneStore;
 
   constructor() {
     this.router = new RouterStore();
@@ -122,10 +134,12 @@ export class CoreRootStore {
     this.issue = new IssueRootStore(this);
     this.state = new StateStore(this);
     this.label = new LabelStore(this);
+    this.recurringWorkItem = new RecurringWorkItemStore();
     this.dashboard = new DashboardStore(this);
     this.multipleSelect = new MultipleSelectStore();
     this.projectInbox = new ProjectInboxStore(this);
     this.projectPages = new ProjectPageStore(this);
+    this.workspacePages = new WorkspacePageStore(this);
     this.projectEstimate = new ProjectEstimateStore(this);
     this.workspaceNotification = new WorkspaceNotificationStore(this);
     this.favorite = new FavoriteStore(this);
@@ -135,6 +149,8 @@ export class CoreRootStore {
     this.workItemFilters = new WorkItemFilterStore();
     this.powerK = new PowerKStore();
     this.timelineStore = new TimeLineStore(this);
+    this.calendarFeed = new CalendarFeedStore();
+    this.milestone = new MilestoneStore();
   }
 
   resetOnSignOut() {
@@ -157,9 +173,11 @@ export class CoreRootStore {
     this.issue = new IssueRootStore(this);
     this.state = new StateStore(this);
     this.label = new LabelStore(this);
+    this.recurringWorkItem = new RecurringWorkItemStore();
     this.dashboard = new DashboardStore(this);
     this.projectInbox = new ProjectInboxStore(this);
     this.projectPages = new ProjectPageStore(this);
+    this.workspacePages = new WorkspacePageStore(this);
     this.multipleSelect = new MultipleSelectStore();
     this.projectEstimate = new ProjectEstimateStore(this);
     this.workspaceNotification = new WorkspaceNotificationStore(this);
@@ -169,6 +187,8 @@ export class CoreRootStore {
     this.workItemFilters = new WorkItemFilterStore();
     this.powerK = new PowerKStore();
     this.timelineStore = new TimeLineStore(this);
+    this.calendarFeed = new CalendarFeedStore();
+    this.milestone = new MilestoneStore();
   }
 }
 

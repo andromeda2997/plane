@@ -109,5 +109,22 @@
     "nested_pages_download_banner": {
       "title": "Verschachtelte Seiten erfordern einen kostenpflichtigen Plan. Führen Sie ein Upgrade durch, um sie freizuschalten."
     }
+  },
+  "wiki_light": {
+    "nav_label": "Wiki",
+    "title": "Wiki",
+    "description": "Seiten für den ganzen Workspace ohne Projekt, z. B. Bürostandards, Vorlagen und Anleitungen.",
+    "new_page": "Neue Seite",
+    "empty_state": {
+      "title": "Starten Sie Ihr Workspace-Wiki",
+      "description": "Sammeln Sie Bürostandards, Checklisten und Anleitungen an einem Ort für alle im Workspace. Seiten lassen sich verschachteln.",
+      "cta": "Erste Seite anlegen"
+    },
+    "not_found": {
+      "title": "Seite nicht gefunden",
+      "description": "Die Seite existiert nicht oder Sie haben keine Berechtigung, sie anzusehen.",
+      "back": "Zurück zum Wiki"
+    },
+    "read_only_hint": "Gäste können Wiki-Seiten lesen, aber nicht bearbeiten."
   }
 }

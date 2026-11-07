@@ -302,6 +302,11 @@ export const coreRoutes: RouteConfigEntry[] = [
               ":workspaceSlug/settings/projects/:projectId/members",
               "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/members/page.tsx"
             ),
+            // Project Calendar Feed (ICS-Abo, Fork-Erweiterung)
+            route(
+              ":workspaceSlug/settings/projects/:projectId/calendar-feed",
+              "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/calendar-feed/page.tsx"
+            ),
             // Project Features
             route(
               ":workspaceSlug/settings/projects/:projectId/features/cycles",
@@ -333,6 +338,11 @@ export const coreRoutes: RouteConfigEntry[] = [
               ":workspaceSlug/settings/projects/:projectId/labels",
               "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/labels/page.tsx"
             ),
+            // Project Milestones (Fork-Erweiterung)
+            route(
+              ":workspaceSlug/settings/projects/:projectId/milestones",
+              "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/milestones/page.tsx"
+            ),
             // Project Estimates
             route(
               ":workspaceSlug/settings/projects/:projectId/estimates",
@@ -345,6 +355,11 @@ export const coreRoutes: RouteConfigEntry[] = [
                 "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/automations/page.tsx"
               ),
             ]),
+            // Project Recurring Work Items
+            route(
+              ":workspaceSlug/settings/projects/:projectId/recurring-work-items",
+              "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/recurring-work-items/page.tsx"
+            ),
           ]),
         ]),
       ]),

@@ -18,6 +18,8 @@ import {
 import { useTranslation } from "@plane/i18n";
 import type { ISvgIcons } from "@plane/propel/icons";
 import type { TProfileSettingsTabs } from "@plane/types";
+// components
+import { CalendarFeedIcon } from "@/components/calendar-feed/icon";
 // local imports
 import { SettingsSidebarItem } from "../../sidebar/item";
 import { ProfileSettingsSidebarWorkspaceOptions } from "./workspace-options";
@@ -28,6 +30,7 @@ const ICONS: Record<TProfileSettingsTabs, LucideIcon | React.FC<ISvgIcons>> = {
   preferences: Settings2,
   notifications: Bell,
   "api-tokens": KeyRound,
+  "calendar-feeds": CalendarFeedIcon,
 };
 
 type Props = {
