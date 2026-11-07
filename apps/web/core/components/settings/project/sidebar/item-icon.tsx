@@ -20,11 +20,13 @@ import {
 } from "@plane/propel/icons";
 import type { TProjectSettingsTabs } from "@plane/types";
 // components
+import { CalendarFeedIcon } from "@/components/calendar-feed/icon";
 import { SettingIcon } from "@/components/icons/attachment";
 
 export const PROJECT_SETTINGS_ICONS: Record<TProjectSettingsTabs, LucideIcon | React.FC<ISvgIcons>> = {
   general: SettingIcon,
   members: Users,
+  calendar_feed: CalendarFeedIcon,
   features_cycles: CycleIcon,
   features_modules: ModuleIcon,
   features_views: ViewsIcon,

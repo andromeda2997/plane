@@ -49,6 +49,10 @@ export const PROFILE_SETTINGS: Record<
     key: "api-tokens",
     i18n_label: "profile.actions.api-tokens",
   },
+  "calendar-feeds": {
+    key: "calendar-feeds",
+    i18n_label: "calendar_feed.settings_label",
+  },
 };
 
 export const PROFILE_SETTINGS_TABS: TProfileSettingsTabs[] = Object.keys(PROFILE_SETTINGS) as TProfileSettingsTabs[];
@@ -62,6 +66,7 @@ export const GROUPED_PROFILE_SETTINGS: Record<
     PROFILE_SETTINGS["preferences"],
     PROFILE_SETTINGS["notifications"],
     PROFILE_SETTINGS["security"],
+    PROFILE_SETTINGS["calendar-feeds"],
   ],
   [PROFILE_SETTINGS_CATEGORY.DEVELOPER]: [PROFILE_SETTINGS["api-tokens"]],
 };
