@@ -425,6 +425,8 @@ class WorkspaceUserPreference(BaseModel):
         YOUR_WORK = "your_work", "Your Work"
         ARCHIVES = "archives", "Archives"
         STICKIES = "stickies", "Stickies"
+        # Workspace-Wiki (plane.ext.wiki); key hat keine DB-choices -> keine Migration
+        WIKI = "wiki", "Wiki"
 
     workspace = models.ForeignKey(
         "db.Workspace",
