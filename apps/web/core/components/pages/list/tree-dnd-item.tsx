@@ -133,7 +133,6 @@ export const PageTreeDndItem = observer(function PageTreeDndItem(props: Props) {
               mode: "standard",
             }
           ),
-        getIsSticky: () => true,
         onDrag: ({ self }) => {
           const kind = getKind(self.data);
           setDropKind((current) => (current === kind ? current : kind));
@@ -234,15 +233,16 @@ export const PageTreeDndItem = observer(function PageTreeDndItem(props: Props) {
 });
 
 /**
- * Ablagefläche oberhalb des Baums: Seite auf die oberste Ebene ganz nach oben verschieben.
+ * Ablagefläche ober-/unterhalb des Baums: Seite auf die oberste Ebene ganz nach oben bzw. unten verschieben.
  * Nur während eines Drag-Vorgangs sichtbar.
  */
 export function PageTreeTopLevelDropZone(props: {
   storeType: EPageStoreType;
   isVisible: boolean;
+  position: "start" | "end";
   onDropPage: (sourceId: string) => void;
 }) {
-  const { storeType, isVisible, onDropPage } = props;
+  const { storeType, isVisible, position, onDropPage } = props;
   const ref = useRef<HTMLDivElement | null>(null);
   const [isOver, setIsOver] = useState(false);
   const { t } = useTranslation();
@@ -270,7 +270,7 @@ export function PageTreeTopLevelDropZone(props: {
           { "border-accent-strong bg-accent-primary/10 text-accent-primary": isOver }
         )}
       >
-        {t("page_tree.dnd.drop_top_level")}
+        {t(position === "start" ? "page_tree.dnd.drop_top_level" : "page_tree.dnd.drop_top_level_end")}
       </div>
     </div>
   );

@@ -187,7 +187,11 @@ export const PagesListRoot = observer(function PagesListRoot(props: TPagesListRo
     [getPageById, movePage]
   );
 
-  const handleDropTopLevel = useCallback((sourceId: string) => void movePage(sourceId, null, () => 0), [movePage]);
+  const handleDropTopLevelStart = useCallback((sourceId: string) => void movePage(sourceId, null, () => 0), [movePage]);
+  const handleDropTopLevelEnd = useCallback(
+    (sourceId: string) => void movePage(sourceId, null, (siblings) => siblings.length),
+    [movePage]
+  );
 
   const isTreeRendered = !!filteredPageIds && !hasActiveFilters;
 
@@ -226,7 +230,12 @@ export const PagesListRoot = observer(function PagesListRoot(props: TPagesListRo
   return (
     <ListLayout containerRef={listRef}>
       {isDndEnabled && (
-        <PageTreeTopLevelDropZone storeType={storeType} isVisible={isDraggingPage} onDropPage={handleDropTopLevel} />
+        <PageTreeTopLevelDropZone
+          storeType={storeType}
+          isVisible={isDraggingPage}
+          position="start"
+          onDropPage={handleDropTopLevelStart}
+        />
       )}
       {rootIds.map((pageId) => (
         <PageTreeNode
@@ -242,6 +251,14 @@ export const PagesListRoot = observer(function PagesListRoot(props: TPagesListRo
           onDropPage={handleDropPage}
         />
       ))}
+      {isDndEnabled && (
+        <PageTreeTopLevelDropZone
+          storeType={storeType}
+          isVisible={isDraggingPage}
+          position="end"
+          onDropPage={handleDropTopLevelEnd}
+        />
+      )}
     </ListLayout>
   );
 });

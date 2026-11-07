@@ -139,7 +139,8 @@
     "sort_manual": "Manuell",
     "dnd": {
       "drag_to_move": "Ziehen zum Sortieren oder Unterordnen",
-      "drop_top_level": "Hier ablegen: oberste Ebene, ganz oben"
+      "drop_top_level": "Hier ablegen: oberste Ebene, ganz oben",
+      "drop_top_level_end": "Hier ablegen: oberste Ebene, ganz unten"
     }
   }
 }
