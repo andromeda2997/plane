@@ -139,8 +139,20 @@ mark_failed() {
 }
 
 # --- 5. Vorheriges Image sichern -------------------------------------------------------
+# Nicht ueberschreiben, wenn (a) gerade auf plane-backend:previous zurueckgerollt wird oder
+# (b) das laufende Image selbst das zuletzt fehlgeschlagene ist - sonst ginge das letzte
+# funktionierende Image verloren.
 prev_ref=none
-if [ "$RUNNING" != none ] && [ "$RUNNING" != "$NEW" ]; then
+failed_running=0
+if [ -f "$FAILED_FILE" ] && [ "$(head -n 1 "$FAILED_FILE")" = "$RUNNING" ]; then
+  failed_running=1
+fi
+if [ "$IMG" = "$PREVIOUS_TAG" ]; then
+  log "Ziel ist $PREVIOUS_TAG (Rollback) - Tag bleibt unveraendert"
+elif [ "$failed_running" = 1 ]; then
+  prev_ref="$PREVIOUS_TAG (unveraendert)"
+  log "Laufendes Image $RUNNING ist als fehlgeschlagen markiert - $PREVIOUS_TAG bleibt unveraendert"
+elif [ "$RUNNING" != none ] && [ "$RUNNING" != "$NEW" ]; then
   prev_ref=$(docker inspect -f '{{.Config.Image}}' "$(container_of api)")
   docker tag "$RUNNING" "$PREVIOUS_TAG"
   log "Bisheriges Image $prev_ref ($RUNNING) als $PREVIOUS_TAG getaggt"
