@@ -266,6 +266,16 @@
       "click_to_downvote": "Нажмите, чтобы проголосовать против",
       "click_to_view_upvotes": "Нажмите, чтобы посмотреть голоса за",
       "click_to_view_downvotes": "Нажмите, чтобы посмотреть голоса против"
+    },
+    "dependency": {
+      "handle_start": "Drag onto another work item to connect from the start",
+      "handle_end": "Drag onto another work item to connect from the end",
+      "create_error": "The dependency could not be created.",
+      "remove_title": "Remove dependency",
+      "remove": "Remove",
+      "removing": "Removing",
+      "remove_description": "The work items stay unchanged, only the dependency between them is removed.",
+      "remove_error": "The dependency could not be removed."
     }
   },
   "sub_work_item": {

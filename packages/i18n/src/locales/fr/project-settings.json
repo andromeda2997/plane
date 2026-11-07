@@ -65,6 +65,13 @@
       "new": "Nouveau système d’estimation",
       "create": {
         "custom": "Personnalisé",
+        "custom_description": "Add your own values from scratch.",
+        "time_input": {
+          "hours": "Hours",
+          "minutes": "Minutes",
+          "hours_unit": "h",
+          "minutes_unit": "min"
+        },
         "start_from_scratch": "Commencer depuis zéro",
         "choose_template": "Choisir un modèle",
         "choose_estimate_system": "Choisir un système d’estimation",
@@ -158,7 +165,9 @@
         },
         "time": {
           "label": "Temps",
-          "hours": "Heures"
+          "hours": "Heures",
+          "quick_to_full_day": "Quick to full day",
+          "custom": "Custom"
         }
       },
       "edit": {
@@ -520,6 +529,133 @@
             }
           }
         }
+      }
+    },
+    "recurring_work_items": {
+      "label": "Recurring work items",
+      "heading": "Recurring work items",
+      "description": "Create work items automatically on a schedule, e.g. a weekly jour fixe or a site inspection every other Tuesday.",
+      "add": "Add recurring work item",
+      "empty_title": "No recurring work items yet",
+      "empty_description": "Define a template and a rule, and Plane creates the work item for you on every occurrence.",
+      "create_title": "New recurring work item",
+      "edit_title": "Edit recurring work item",
+      "create_from_work_item": "Create as recurring",
+      "next_run": "Next: {date}",
+      "no_next_run": "No further occurrences",
+      "paused": "Paused",
+      "load_error": "Recurring work items could not be loaded. Is the server up to date?",
+      "created_count": "{count, plural, one {# work item created} other {# work items created}}",
+      "actions": {
+        "edit": "Edit",
+        "pause": "Pause",
+        "resume": "Resume",
+        "run_now": "Run now",
+        "history": "History",
+        "delete": "Delete"
+      },
+      "fields": {
+        "name": "Title",
+        "name_placeholder": "e.g. Jour fixe with the client",
+        "description": "Description",
+        "properties": "Properties of the created work item",
+        "duration": "Duration (days)",
+        "duration_hint": "Sets start and due date. Leave empty for no dates.",
+        "rule": "Repeat",
+        "frequency": "Frequency",
+        "interval": "Every",
+        "weekdays": "On",
+        "month_day": "On day",
+        "month_day_hint": "Months with fewer days use the last day of the month.",
+        "start_date": "Starts on",
+        "end": "Ends",
+        "end_date": "End date",
+        "max_occurrences": "Number of occurrences",
+        "create_days_before": "Create in advance (days)",
+        "create_days_before_hint": "The work item is created at 6:00 (project timezone) this many days before its date.",
+        "active": "Active"
+      },
+      "frequency": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "unit": {
+        "daily": "{count, plural, one {day} other {days}}",
+        "weekly": "{count, plural, one {week} other {weeks}}",
+        "monthly": "{count, plural, one {month} other {months}}"
+      },
+      "end_type": {
+        "never": "Never",
+        "on_date": "On a date",
+        "after_count": "After a number of occurrences"
+      },
+      "weekday_short": {
+        "0": "Mon",
+        "1": "Tue",
+        "2": "Wed",
+        "3": "Thu",
+        "4": "Fri",
+        "5": "Sat",
+        "6": "Sun"
+      },
+      "weekday_long": {
+        "0": "Monday",
+        "1": "Tuesday",
+        "2": "Wednesday",
+        "3": "Thursday",
+        "4": "Friday",
+        "5": "Saturday",
+        "6": "Sunday"
+      },
+      "summary": {
+        "daily": "{interval, plural, one {Every day} other {Every # days}}",
+        "weekly": "{interval, plural, one {Every week} other {Every # weeks}} on {days}",
+        "monthly": "{interval, plural, one {Every month} other {Every # months}} on day {day}",
+        "until": "until {date}",
+        "times": "{count, plural, one {once} other {# times}}"
+      },
+      "history": {
+        "title": "History: {name}",
+        "empty": "No work items have been created yet.",
+        "scheduled": "Scheduled",
+        "manual": "Manual",
+        "success": "Created",
+        "failed": "Failed",
+        "occurrence": "Date",
+        "work_item": "Work item",
+        "deleted_work_item": "Work item deleted"
+      },
+      "warnings": {
+        "state_not_found": "State no longer exists, default state used",
+        "labels_not_found": "Some labels no longer exist",
+        "assignees_not_found": "Some assignees are no longer project members",
+        "cycle_not_found": "Cycle no longer exists",
+        "cycle_completed": "Cycle is already completed",
+        "module_not_found": "Module no longer exists"
+      },
+      "delete": {
+        "title": "Delete recurring work item",
+        "content": "Do you really want to delete \"{name}\"? Work items that were already created are kept."
+      },
+      "toast": {
+        "created": "Recurring work item created.",
+        "updated": "Recurring work item updated.",
+        "deleted": "Recurring work item deleted.",
+        "paused": "Recurring work item paused.",
+        "resumed": "Recurring work item resumed.",
+        "run_success": "Work item {identifier} created.",
+        "run_failed": "The work item could not be created: {error}",
+        "error": "Something went wrong. Please try again."
+      },
+      "validation": {
+        "name_required": "Title is required",
+        "weekdays_required": "Select at least one weekday",
+        "month_day_required": "Enter a day between 1 and 31",
+        "start_date_required": "Start date is required",
+        "end_date_required": "End date is required",
+        "end_date_before_start": "End date must not be before the start date",
+        "max_occurrences_required": "Enter the number of occurrences"
       }
     }
   }

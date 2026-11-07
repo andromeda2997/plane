@@ -266,6 +266,16 @@
       "click_to_downvote": "點擊反對",
       "click_to_view_upvotes": "點擊查看贊成票",
       "click_to_view_downvotes": "點擊查看反對票"
+    },
+    "dependency": {
+      "handle_start": "Drag onto another work item to connect from the start",
+      "handle_end": "Drag onto another work item to connect from the end",
+      "create_error": "The dependency could not be created.",
+      "remove_title": "Remove dependency",
+      "remove": "Remove",
+      "removing": "Removing",
+      "remove_description": "The work items stay unchanged, only the dependency between them is removed.",
+      "remove_error": "The dependency could not be removed."
     }
   },
   "sub_work_item": {

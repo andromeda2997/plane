@@ -152,5 +152,62 @@
         "label": "カスタムテーマ"
       }
     }
+  },
+  "calendar_feed": {
+    "settings_label": "Calendar subscription",
+    "title": "Subscribe to calendar",
+    "project_description": "Show this project's work items with a start or due date, its cycles and modules in Outlook, Teams or any other calendar app.",
+    "profile_description": "Show the work items assigned to you in a workspace in Outlook, Teams or any other calendar app.",
+    "privacy_note": "The calendar only contains title, ID, dates, status and a link – no descriptions, comments or people. Anyone who knows the address can read the calendar, so treat it like a password.",
+    "workspace_label": "Workspace",
+    "hide_completed": "Hide completed and cancelled work items",
+    "create": "Create calendar link",
+    "scope_my_work_items": "My work items",
+    "scope_project": "Project {identifier}",
+    "created": {
+      "title": "Calendar link created",
+      "description": "Copy the address now. For security reasons it is shown only once.",
+      "copy": "Copy link",
+      "copied": "Calendar link copied to clipboard.",
+      "close": "Done"
+    },
+    "instructions": {
+      "title": "How to subscribe in Outlook",
+      "step_1": "Outlook on the web or new Outlook: open Calendar → Add calendar → Subscribe from web.",
+      "step_2": "Paste the address, choose a name and colour, then click Import.",
+      "step_3": "Teams uses your Outlook calendar, so the entries show up there as well.",
+      "delay": "Outlook refreshes subscribed calendars only every few hours. Changes in Plane can take a while to appear."
+    },
+    "list": {
+      "title": "Your calendar links",
+      "empty": "You have not created any calendar links yet.",
+      "created_at": "Created {date}",
+      "last_used": "Last fetched {time}",
+      "never_used": "Not fetched yet",
+      "without_completed": "Without completed"
+    },
+    "actions": {
+      "regenerate": "Regenerate",
+      "revoke": "Revoke"
+    },
+    "regenerate_modal": {
+      "title": "Regenerate calendar link?",
+      "description": "The old address stops working immediately. You have to subscribe again with the new address.",
+      "confirm": "Regenerate",
+      "confirming": "Regenerating"
+    },
+    "revoke_modal": {
+      "title": "Revoke calendar link?",
+      "description": "The address stops working immediately. Subscribed calendars will no longer be updated.",
+      "confirm": "Revoke",
+      "confirming": "Revoking"
+    },
+    "toasts": {
+      "load_error": "Could not load calendar links.",
+      "create_error": "Could not create the calendar link.",
+      "revoke_success": "Calendar link revoked.",
+      "revoke_error": "Could not revoke the calendar link.",
+      "regenerate_error": "Could not regenerate the calendar link."
+    }
   }
 }

@@ -266,6 +266,16 @@
       "click_to_downvote": "Clic pentru a vota negativ",
       "click_to_view_upvotes": "Clic pentru a vedea voturile pozitive",
       "click_to_view_downvotes": "Clic pentru a vedea voturile negative"
+    },
+    "dependency": {
+      "handle_start": "Drag onto another work item to connect from the start",
+      "handle_end": "Drag onto another work item to connect from the end",
+      "create_error": "The dependency could not be created.",
+      "remove_title": "Remove dependency",
+      "remove": "Remove",
+      "removing": "Removing",
+      "remove_description": "The work items stay unchanged, only the dependency between them is removed.",
+      "remove_error": "The dependency could not be removed."
     }
   },
   "sub_work_item": {
