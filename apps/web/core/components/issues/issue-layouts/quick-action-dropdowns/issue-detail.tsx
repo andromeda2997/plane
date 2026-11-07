@@ -37,6 +37,7 @@ type TWorkItemDetailQuickActionProps = IQuickActionProps & {
   toggleDeleteIssueModal?: (value: boolean) => void;
   toggleDuplicateIssueModal?: (value: boolean) => void;
   toggleArchiveIssueModal?: (value: boolean) => void;
+  toggleRecurringModal?: (value: boolean) => void;
   isPeekMode?: boolean;
 };
 
@@ -57,6 +58,7 @@ export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickA
     toggleDeleteIssueModal,
     toggleDuplicateIssueModal,
     toggleArchiveIssueModal,
+    toggleRecurringModal,
     isPeekMode = false,
   } = props;
   // router
@@ -159,7 +161,11 @@ export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickA
     key: "create-recurring",
     title: t("project_settings.recurring_work_items.create_from_work_item"),
     icon: Repeat,
-    action: () => setRecurringModal(true),
+    action: () => {
+      setRecurringModal(true);
+      // the peek overview must not close on clicks inside the (portaled) modal
+      toggleRecurringModal?.(true);
+    },
     shouldRender: isEditingAllowed && !issue.archived_at,
   };
   const copyItemIndex = detailMenuItems.findIndex((item) => item.key === "make-a-copy");
@@ -249,7 +255,10 @@ export const WorkItemDetailQuickActions = observer(function WorkItemDetailQuickA
       {workspaceSlug && (
         <CreateRecurringFromWorkItemModal
           isOpen={recurringModal}
-          onClose={() => setRecurringModal(false)}
+          onClose={() => {
+            setRecurringModal(false);
+            toggleRecurringModal?.(false);
+          }}
           workspaceSlug={workspaceSlug.toString()}
           issue={issue}
         />
