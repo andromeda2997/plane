@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import { CircleDot, XCircle } from "lucide-react";
+import { ArrowLeftToLine, ArrowRightToLine, CircleDot, ChevronsLeft, ChevronsRight, XCircle } from "lucide-react";
 import { RelatedIcon, DuplicatePropertyIcon } from "@plane/propel/icons";
 import type { TRelationObject } from "@/components/issues/issue-detail-widgets/relations";
 import type { TIssueRelationTypes } from "@plane/types";
@@ -36,6 +36,34 @@ export const ISSUE_RELATION_OPTIONS: Record<TIssueRelationTypes, TRelationObject
     i18n_label: "issue.relation.blocking",
     className: "bg-yellow-500/20 text-yellow-700",
     icon: (size) => <XCircle size={size} className="text-secondary" />,
+    placeholder: "None",
+  },
+  start_before: {
+    key: "start_before",
+    i18n_label: "issue.relation.start_before",
+    className: "bg-layer-1 text-secondary",
+    icon: (size) => <ChevronsRight size={size} className="text-secondary" />,
+    placeholder: "None",
+  },
+  start_after: {
+    key: "start_after",
+    i18n_label: "issue.relation.start_after",
+    className: "bg-layer-1 text-secondary",
+    icon: (size) => <ChevronsLeft size={size} className="text-secondary" />,
+    placeholder: "None",
+  },
+  finish_before: {
+    key: "finish_before",
+    i18n_label: "issue.relation.finish_before",
+    className: "bg-layer-1 text-secondary",
+    icon: (size) => <ArrowRightToLine size={size} className="text-secondary" />,
+    placeholder: "None",
+  },
+  finish_after: {
+    key: "finish_after",
+    i18n_label: "issue.relation.finish_after",
+    className: "bg-layer-1 text-secondary",
+    icon: (size) => <ArrowLeftToLine size={size} className="text-secondary" />,
     placeholder: "None",
   },
 };

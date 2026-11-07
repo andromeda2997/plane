@@ -24,6 +24,7 @@ import { GanttChartSidebar, MonthChartView, QuarterChartView, WeekChartView } fr
 import { useTimeLineChartStore } from "@/hooks/use-timeline-chart";
 import { GanttChartRowList } from "@/components/gantt-chart/blocks/block-row-list";
 import { GanttChartBlocksList } from "@/components/gantt-chart/blocks/blocks-list";
+import { GanttDependencyArrows } from "@/components/gantt-chart/dependencies/arrows";
 import { IssueBulkOperationsRoot } from "@/components/issues/bulk-operations";
 import { useBulkOperationStatus } from "@/hooks/use-bulk-operation-status";
 // local imports
@@ -224,6 +225,13 @@ export const GanttChartMainContent = observer(function GanttChartMainContent(pro
                       showAllBlocks={showAllBlocks}
                       updateBlockDates={updateBlockDates}
                     />
+                    {enableDependency && (
+                      <GanttDependencyArrows
+                        blockIds={blockIds}
+                        showAllBlocks={showAllBlocks}
+                        width={itemsContainerWidth}
+                      />
+                    )}
                   </div>
                 )}
               </div>

@@ -209,13 +209,8 @@ export class IssueRelationStore implements IIssueRelationStore {
     } catch (e) {
       // Revert back store changes if API fails
       runInAction(() => {
-        if (issuesOfRelation) {
-          set(this.relationMap, [issueId, relationType], issuesOfRelation);
-        }
-
-        if (issuesOfRelated) {
-          set(this.relationMap, [relatedIssueId, reverseRelatedType], issuesOfRelated);
-        }
+        set(this.relationMap, [issueId, relationType], issuesOfRelation ?? []);
+        set(this.relationMap, [relatedIssueId, reverseRelatedType], issuesOfRelated ?? []);
       });
 
       throw e;
@@ -249,9 +244,9 @@ export class IssueRelationStore implements IIssueRelationStore {
       // While removing one relation, reverse of the relation should also be removed
       const reverseRelatedType = REVERSE_RELATIONS[relationType];
       const relatedIndex = this.relationMap[related_issue]?.[reverseRelatedType]?.findIndex(
-        (_issueId) => _issueId === related_issue
+        (_issueId) => _issueId === issueId
       );
-      if (relationIndex >= 0)
+      if (relatedIndex >= 0)
         runInAction(() => {
           this.relationMap[related_issue]?.[reverseRelatedType]?.splice(relatedIndex, 1);
         });

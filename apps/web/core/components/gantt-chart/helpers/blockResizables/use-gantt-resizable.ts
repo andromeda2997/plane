@@ -27,6 +27,8 @@ export const useGanttResizable = (
   });
   const ganttContainerDimensions = useRef<DOMRect | undefined>();
   const currMouseEvent = useRef<MouseEvent | undefined>();
+  // holding Alt while dragging moves only this block and leaves dependent blocks where they are
+  const ignoreDependenciesRef = useRef(false);
   // states
   const { currentViewData, updateBlockPosition, setIsDragging, getUpdatedPositionAfterDrag } = useTimeLineChartStore();
   const [isMoving, setIsMoving] = useState<"left" | "right" | "move" | undefined>();
@@ -61,6 +63,7 @@ export const useGanttResizable = (
 
     const handleMouseMove = (e: MouseEvent) => {
       currMouseEvent.current = e;
+      ignoreDependenciesRef.current = e.altKey;
       setIsMoving(dragDirection);
       setIsDragging(true);
 
@@ -109,7 +112,7 @@ export const useGanttResizable = (
       const deltaWidth = Math.round((width - (block.position?.width ?? 0)) / dayWidth) * dayWidth;
 
       // call update blockPosition
-      if (deltaWidth || deltaLeft) updateBlockPosition(block.id, deltaLeft, deltaWidth);
+      if (deltaWidth || deltaLeft) updateBlockPosition(block.id, deltaLeft, deltaWidth, ignoreDependenciesRef.current);
     };
 
     // remove event listeners and call updateBlockDates
@@ -125,7 +128,11 @@ export const useGanttResizable = (
         (dragDirection === "left" && !block.start_date) || (dragDirection === "right" && !block.target_date);
 
       try {
-        const blockUpdates = getUpdatedPositionAfterDrag(block.id, shouldUpdateHalfBlock);
+        const blockUpdates = getUpdatedPositionAfterDrag(
+          block.id,
+          shouldUpdateHalfBlock,
+          ignoreDependenciesRef.current
+        );
         if (updateBlockDates) updateBlockDates(blockUpdates);
       } catch {
         setToast({
