@@ -58,7 +58,7 @@ export const RecurringWorkItemsRoot = observer(function RecurringWorkItemsRoot(p
   const items = getProjectRecurringWorkItems(projectId);
   const projectIdentifier = getProjectIdentifierById(projectId);
 
-  useSWR(
+  const { error: fetchError } = useSWR(
     workspaceSlug && projectId ? `RECURRING_WORK_ITEMS_${projectId}` : null,
     workspaceSlug && projectId ? () => fetchRecurringWorkItems(workspaceSlug, projectId) : null,
     { revalidateOnFocus: false }
@@ -163,7 +163,9 @@ export const RecurringWorkItemsRoot = observer(function RecurringWorkItemsRoot(p
       />
 
       <div className="mt-6 w-full">
-        {!items ? (
+        {!items && fetchError ? (
+          <p className="text-body-xs-regular text-danger-primary">{t(`${I18N_PREFIX}.load_error`)}</p>
+        ) : !items ? (
           <Loader className="space-y-3">
             <Loader.Item height="56px" />
             <Loader.Item height="56px" />

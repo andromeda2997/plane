@@ -8,9 +8,10 @@ from unittest import mock
 from uuid import uuid4
 
 import pytest
+from django.utils import timezone
 from rest_framework import status
 
-from plane.db.models import Issue, Label, Project, ProjectMember, State, User, WorkspaceMember
+from plane.db.models import Cycle, Issue, Label, Project, ProjectMember, State, User, WorkspaceMember
 from plane.ext.recurring.models import RecurringWorkItem
 
 
@@ -90,6 +91,37 @@ class TestRecurringWorkItemsAPI:
         other = Project.objects.create(name="Fremd", identifier="FR", workspace=workspace, created_by=create_user)
         label = Label.objects.create(name="Fremd", project=other)
         response = session_client.post(url(workspace, project), payload(label_ids=[str(label.id)]), format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_edit_after_member_left_and_cycle_archived(self, session_client, workspace, project, create_user):
+        uid = uuid4().hex[:8]
+        member = User.objects.create(email=f"member-{uid}@plane.so", username=f"member_{uid}")
+        WorkspaceMember.objects.create(workspace=workspace, member=member, role=15)
+        project_member = ProjectMember.objects.create(project=project, member=member, role=15, is_active=True)
+        cycle = Cycle.objects.create(name="KW 46", project=project, owned_by=create_user)
+        response = session_client.post(
+            url(workspace, project),
+            payload(assignee_ids=[str(member.id), str(create_user.id)], cycle_id=str(cycle.id)),
+            format="json",
+        )
+        assert response.status_code == status.HTTP_201_CREATED, response.data
+        full_payload = {key: value for key, value in response.data.items() if key in payload() or key.endswith("_ids")}
+        full_payload["cycle_id"] = str(cycle.id)
+
+        project_member.is_active = False
+        project_member.save()
+        Cycle.objects.filter(pk=cycle.id).update(archived_at=timezone.now())
+
+        response = session_client.patch(
+            url(workspace, project, f"{response.data['id']}/"), {**full_payload, "name": "Neu"}, format="json"
+        )
+        assert response.status_code == status.HTTP_200_OK, response.data
+        assert response.data["assignee_ids"] == [str(create_user.id)]
+        assert response.data["name"] == "Neu"
+
+    def test_archived_cycle_cannot_be_selected(self, session_client, workspace, project, create_user):
+        cycle = Cycle.objects.create(name="Alt", project=project, owned_by=create_user, archived_at=timezone.now())
+        response = session_client.post(url(workspace, project), payload(cycle_id=str(cycle.id)), format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_pause_resume_and_run(self, session_client, workspace, project):

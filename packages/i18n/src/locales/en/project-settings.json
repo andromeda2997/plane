@@ -535,6 +535,7 @@
       "next_run": "Next: {date}",
       "no_next_run": "No further occurrences",
       "paused": "Paused",
+      "load_error": "Recurring work items could not be loaded. Is the server up to date?",
       "created_count": "{count, plural, one {# work item created} other {# work items created}}",
       "actions": {
         "edit": "Edit",

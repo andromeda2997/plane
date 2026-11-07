@@ -142,10 +142,13 @@ class RecurringWorkItemSerializer(BaseSerializer):
             obj = attrs.get(key)
             if obj is not None and str(obj.project_id) != str(project_id):
                 raise serializers.ValidationError({model_name: "Not part of this project"})
-        if attrs.get("cycle") is not None and attrs["cycle"].archived_at is not None:
-            raise serializers.ValidationError({"cycle_id": "Cycle is archived"})
-        if attrs.get("module") is not None and attrs["module"].archived_at is not None:
-            raise serializers.ValidationError({"module_id": "Module is archived"})
+        # archived cycles/modules cannot be newly selected (an unchanged value stays valid,
+        # the task skips it with a warning)
+        for key, model_name in (("cycle", "cycle_id"), ("module", "module_id")):
+            obj = attrs.get(key)
+            unchanged = self.instance is not None and obj is not None and getattr(self.instance, f"{key}_id") == obj.id
+            if obj is not None and obj.archived_at is not None and not unchanged:
+                raise serializers.ValidationError({model_name: f"{key.capitalize()} is archived"})
 
         if attrs.get("label_ids"):
             label_ids = {str(pk) for pk in attrs["label_ids"]}
@@ -165,8 +168,7 @@ class RecurringWorkItemSerializer(BaseSerializer):
                     project_id=project_id, member_id__in=assignee_ids, role__gte=15, is_active=True
                 ).values_list("member_id", flat=True)
             }
-            if found != assignee_ids:
-                raise serializers.ValidationError({"assignee_ids": "Assignees must be members of this project"})
+            # like the issue serializer: silently drop users that are not (or no longer) active members
             attrs["assignee_ids"] = sorted(found)
 
         # rule

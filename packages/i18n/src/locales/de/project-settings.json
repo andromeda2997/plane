@@ -535,6 +535,7 @@
       "next_run": "Nächster Termin: {date}",
       "no_next_run": "Keine weiteren Termine",
       "paused": "Pausiert",
+      "load_error": "Wiederkehrende Arbeitselemente konnten nicht geladen werden. Ist der Server aktuell?",
       "created_count": "{count, plural, one {# Arbeitselement erstellt} other {# Arbeitselemente erstellt}}",
       "actions": {
         "edit": "Bearbeiten",
