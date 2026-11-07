@@ -15,7 +15,7 @@ MAX_IDS_PER_REQUEST = 500
 
 
 class MilestoneSerializer(BaseSerializer):
-    """Meilenstein inkl. Fortschritt (Annotationen aus ``annotated_milestones``)."""
+    """Meilenstein inkl. Fortschritt (Annotationen aus ``selectors.annotate_progress``)."""
 
     total_issues = serializers.IntegerField(read_only=True)
     completed_issues = serializers.IntegerField(read_only=True)

@@ -3,8 +3,6 @@
 # See the LICENSE file for details.
 
 from django.db import transaction
-from django.db.models import Count, IntegerField, OuterRef, Subquery, Value
-from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -13,46 +11,11 @@ from plane.app.views.base import BaseAPIView
 from plane.db.models import Issue, Project
 
 from .models import Milestone, MilestoneIssue
+from .selectors import annotated_milestones
 from .serializers import IssueIdsSerializer, MilestoneIdsSerializer, MilestoneSerializer
 
 READ_ROLES = [ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST]
 WRITE_ROLES = [ROLE.ADMIN, ROLE.MEMBER]
-
-
-def _count(queryset):
-    """Anzahl der Arbeitselemente je Meilenstein als korrelierte Unterabfrage."""
-    return Coalesce(
-        Subquery(
-            queryset.order_by()
-            .values("ext_milestone_issues__milestone_id")
-            .annotate(cnt=Count("pk", distinct=True))
-            .values("cnt")[:1],
-            output_field=IntegerField(),
-        ),
-        Value(0),
-    )
-
-
-def annotated_milestones(slug, project_id):
-    """Meilensteine eines Projekts mit Fortschritt.
-
-    Gezählt werden wie bei Modulen nur „normale“ Arbeitselemente
-    (``Issue.issue_objects``: nicht gelöscht, archiviert, Entwurf oder in Triage);
-    abgeschlossen = Status-Gruppe ``completed``, abgebrochen = ``cancelled``.
-    """
-    linked = Issue.issue_objects.filter(
-        ext_milestone_issues__milestone_id=OuterRef("pk"),
-        ext_milestone_issues__deleted_at__isnull=True,
-    )
-    return (
-        Milestone.objects.filter(workspace__slug=slug, project_id=project_id)
-        .annotate(
-            total_issues=_count(linked),
-            completed_issues=_count(linked.filter(state__group="completed")),
-            cancelled_issues=_count(linked.filter(state__group="cancelled")),
-        )
-        .order_by("date", "sort_order", "created_at")
-    )
 
 
 def _serialized(slug, project_id, pk):

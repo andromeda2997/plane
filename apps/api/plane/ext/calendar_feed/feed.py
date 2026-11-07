@@ -15,6 +15,7 @@ from typing import Optional
 from urllib.parse import quote
 
 import pytz
+from django.apps import apps
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
@@ -40,12 +41,14 @@ LABELS = {
     "de": {
         "cycle": "Zyklus",
         "module": "Modul",
+        "milestone": "Meilenstein",
         "my_work_items": "Meine Arbeitselemente",
         "description": "Termine aus Plane (nur Titel, Datum, Status und Link)",
     },
     "en": {
         "cycle": "Cycle",
         "module": "Module",
+        "milestone": "Milestone",
         "my_work_items": "My work items",
         "description": "Dates from Plane (title, date, status and link only)",
     },
@@ -206,7 +209,7 @@ def _local_date(value, tz_name: Optional[str]) -> date:
 
 
 def _project_feature_events(ctx: FeedContext, project: Project) -> list:
-    """Zyklen und Module eines Projekts (nur für Projekt-Feeds)."""
+    """Zyklen, Module und Meilensteine eines Projekts (nur für Projekt-Feeds)."""
     feed = ctx.feed
     if project.id in _restricted_guest_project_ids(feed.user, feed.workspace_id):
         return []
@@ -268,6 +271,51 @@ def _project_feature_events(ctx: FeedContext, project: Project) -> list:
                     last_modified=row["updated_at"],
                 )
             )
+
+    events.extend(_milestone_events(ctx, project, base, window_start))
+    return events
+
+
+def _milestone_events(ctx: FeedContext, project: Project, base: Optional[str], window_start: date) -> list:
+    """Meilensteine (``plane.ext.milestones``) als eintägige Termine.
+
+    Nur wenn die Erweiterung installiert ist – deshalb die Importe erst hier.
+    Gast-Regeln übernimmt der Aufrufer (wie bei Zyklen/Modulen).
+    """
+    if not apps.is_installed("plane.ext.milestones"):
+        return []
+    from plane.ext.milestones.models import Milestone
+    from plane.ext.milestones.selectors import annotate_progress, is_closed
+
+    milestones = annotate_progress(Milestone.objects.filter(project_id=project.id, date__gte=window_start)).values(
+        "id",
+        "name",
+        "date",
+        "created_at",
+        "updated_at",
+        "total_issues",
+        "completed_issues",
+        "cancelled_issues",
+    )
+    label = ctx.labels["milestone"]
+    events = []
+    for row in milestones:
+        if ctx.hide_completed and is_closed(row["total_issues"], row["completed_issues"], row["cancelled_issues"]):
+            continue
+        events.append(
+            AllDayEvent(
+                uid=f"milestone-{row['id']}@plane",
+                summary=f"[{project.identifier}] {label}: {row['name']}",
+                # Eintägig: DTEND (= Datum + 1) berechnet AllDayEvent exklusiv.
+                start=row["date"],
+                end=row["date"],
+                url=f"{base}/issues" if base else None,
+                status="CONFIRMED",
+                categories=[label],
+                created=row["created_at"],
+                last_modified=row["updated_at"],
+            )
+        )
     return events
 
 
