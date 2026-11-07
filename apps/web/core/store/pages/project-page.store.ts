@@ -21,6 +21,7 @@ import { ProjectPageService } from "@/services/page";
 import type { CoreRootStore } from "../root.store";
 import type { TProjectPage } from "./project-page";
 import { ProjectPage } from "./project-page";
+import { getAncestorIds, getDescendantIds } from "./page-tree";
 
 type TLoader = "init-loader" | "mutation-loader" | undefined;
 
@@ -47,6 +48,9 @@ export interface IProjectPageStore {
   getCurrentProjectPageIds: (projectId: string) => string[];
   getCurrentProjectFilteredPageIdsByTab: (pageType: TPageNavigationTabs) => string[] | undefined;
   getPageById: (pageId: string) => TProjectPage | undefined;
+  // Seitenbaum
+  getPageAncestorIds: (pageId: string) => string[];
+  getDescendantPageIds: (pageId: string) => string[];
   updateFilters: <T extends keyof TPageFilters>(filterKey: T, filterValue: TPageFilters[T]) => void;
   clearAllFilters: () => void;
   // actions
@@ -187,6 +191,16 @@ export class ProjectPageStore implements IProjectPageStore {
    * @param {string} pageId
    */
   getPageById = computedFn((pageId: string) => this.data?.[pageId] || undefined);
+
+  /**
+   * @description Vorfahren einer Seite (oberste Ebene zuerst) für den Breadcrumb
+   */
+  getPageAncestorIds = computedFn((pageId: string) => getAncestorIds(this.data, pageId));
+
+  /**
+   * @description alle Unterseiten (rekursiv) einer Seite
+   */
+  getDescendantPageIds = computedFn((pageId: string) => getDescendantIds(this.data, pageId));
 
   updateFilters = <T extends keyof TPageFilters>(filterKey: T, filterValue: TPageFilters[T]) => {
     runInAction(() => {
@@ -334,6 +348,11 @@ export class ProjectPageStore implements IProjectPageStore {
 
       await this.service.remove(workspaceSlug, projectId, pageId);
       runInAction(() => {
+        // wie im Backend: Unterseiten rücken eine Ebene nach oben
+        const parentId = this.data[pageId]?.parent ?? null;
+        Object.values(this.data).forEach((page) => {
+          if (page.parent === pageId) page.parent = parentId;
+        });
         unset(this.data, [pageId]);
         if (this.rootStore.favorite.entityMap[pageId]) this.rootStore.favorite.removeFavoriteFromStore(pageId);
       });

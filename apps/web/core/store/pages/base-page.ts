@@ -15,6 +15,7 @@ import { ExtendedBasePage } from "@/store/pages/extended-base-page";
 import type { RootStore } from "@/store/root.store";
 // local imports
 import { PageEditorInstance } from "./page-editor-info";
+import { getDescendantIds } from "./page-tree";
 
 export type TBasePage = TPage & {
   // observables
@@ -41,6 +42,8 @@ export type TBasePage = TPage & {
   addToFavorites: () => Promise<void>;
   removePageFromFavorites: () => Promise<void>;
   duplicate: () => Promise<TPage | undefined>;
+  setParent: (parentId: string | null) => Promise<void>;
+  getPeerPages: () => Record<string, TBasePage>;
   mutateProperties: (data: Partial<TPage>, shouldUpdateName?: boolean) => void;
   setSyncingStatus: (status: "syncing" | "synced" | "error") => void;
   // sub-store
@@ -97,6 +100,8 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
   archived_at: string | null | undefined;
   workspace: string | undefined;
   project_ids?: string[] | undefined;
+  // übergeordnete Seite; bewusst nicht in asJSON, damit update() keinen veralteten Wert zurückschreibt
+  parent: string | null = null;
   created_by: string | undefined;
   updated_by: string | undefined;
   created_at: Date | undefined;
@@ -134,6 +139,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
     this.archived_at = page?.archived_at || undefined;
     this.workspace = page?.workspace || undefined;
     this.project_ids = page?.project_ids || undefined;
+    this.parent = page?.parent ?? null;
     this.created_by = page?.created_by || undefined;
     this.updated_by = page?.updated_by || undefined;
     this.created_at = page?.created_at || undefined;
@@ -159,6 +165,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       archived_at: observable.ref,
       workspace: observable.ref,
       project_ids: observable,
+      parent: observable.ref,
       created_by: observable.ref,
       updated_by: observable.ref,
       created_at: observable.ref,
@@ -186,6 +193,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       addToFavorites: action,
       removePageFromFavorites: action,
       duplicate: action,
+      setParent: action,
       mutateProperties: action,
     });
 
@@ -285,7 +293,7 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       runInAction(() => {
         Object.keys(pageData).forEach((key) => {
           const currentPageKey = key as keyof TPage;
-          set(this, key, currentPage?.[currentPageKey] || undefined);
+          set(this, key, (currentPage as Partial<TPage> | undefined)?.[currentPageKey] || undefined);
         });
       });
       throw error;
@@ -420,6 +428,14 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
           this.archived_at = response.archived_at;
         });
       }
+      // das Backend archiviert Unterseiten mit -> lokalen Stand angleichen
+      const archivedAt = this.archived_at;
+      const peers = this.getPeerPages();
+      runInAction(() => {
+        getDescendantIds(peers, this.id as string).forEach((id) => {
+          if (peers[id] && !peers[id].archived_at) peers[id].archived_at = archivedAt;
+        });
+      });
     } catch (error) {
       console.error(error);
       runInAction(() => {
@@ -442,6 +458,16 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       if (shouldSync) {
         await this.services.restore();
       }
+      // wie im Backend: Unterseiten mit wiederherstellen; ist die Elternseite noch archiviert,
+      // landet die Seite auf der obersten Ebene
+      const peers = this.getPeerPages();
+      runInAction(() => {
+        if (this.parent && peers[this.parent]?.archived_at) this.parent = null;
+        if (this.id)
+          getDescendantIds(peers, this.id).forEach((id) => {
+            if (peers[id]) peers[id].archived_at = null;
+          });
+      });
     } catch (error) {
       console.error(error);
       runInAction(() => {
@@ -527,6 +553,25 @@ export class BasePage extends ExtendedBasePage implements TBasePage {
       });
       throw error;
     });
+  };
+
+  /**
+   * @description Seite unter eine andere Seite verschieben (null = oberste Ebene)
+   */
+  setParent = async (parentId: string | null) => {
+    await this.services.update({ parent: parentId });
+    runInAction(() => {
+      this.parent = parentId;
+    });
+  };
+
+  /**
+   * @description alle Seiten des Stores, zu dem diese Seite gehört (Projekt-Seiten oder Wiki)
+   */
+  getPeerPages = (): Record<string, TBasePage> => {
+    if (!this.id) return {};
+    const candidates = [this.rootStore.projectPages?.data, this.rootStore.workspacePages?.data];
+    return (candidates.find((data) => !!data?.[this.id as string]) ?? {}) as Record<string, TBasePage>;
   };
 
   /**

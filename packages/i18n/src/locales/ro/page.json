@@ -111,5 +111,30 @@
       "success_message": "Pagina a fost eliminată din colecție.",
       "error_message": "Pagina nu a putut fi eliminată din colecție. Te rugăm să încerci din nou."
     }
+  },
+  "page_tree": {
+    "add_sub_page": "Add sub page",
+    "move_under": "Move under …",
+    "expand": "Expand sub pages",
+    "collapse": "Collapse sub pages",
+    "sub_pages_count": "{count, plural, one {# sub page} other {# sub pages}}",
+    "move_modal": {
+      "title": "Move \"{name}\" under …",
+      "search_placeholder": "Search pages",
+      "top_level": "Top level (no parent page)",
+      "no_results": "No matching pages",
+      "current_parent": "current",
+      "submit": "Move",
+      "submitting": "Moving"
+    },
+    "toasts": {
+      "moved": "Page moved.",
+      "move_failed": "Page could not be moved. Please try again.",
+      "sub_page_created": "Sub page created.",
+      "sub_page_failed": "Sub page could not be created. Please try again.",
+      "archived_with_children": "Page and {count, plural, one {# sub page} other {# sub pages}} archived."
+    },
+    "delete_hint": "Sub pages are not deleted. They stay in the archive and move up one level.",
+    "archive_hint": "Sub pages are archived together with this page."
   }
 }

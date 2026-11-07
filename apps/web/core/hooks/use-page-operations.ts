@@ -7,6 +7,7 @@
 import { useMemo } from "react";
 // plane imports
 import { IS_FAVORITE_MENU_OPEN } from "@plane/constants";
+import { useTranslation } from "@plane/i18n";
 import { TOAST_TYPE, setToast } from "@plane/propel/toast";
 import { EPageAccess } from "@plane/types";
 import { copyUrlToClipboard } from "@plane/utils";
@@ -14,6 +15,7 @@ import { copyUrlToClipboard } from "@plane/utils";
 import { useCollaborativePageActions } from "@/hooks/use-collaborative-page-actions";
 // store types
 import type { TPageInstance } from "@/store/pages/base-page";
+import { getDescendantIds } from "@/store/pages/page-tree";
 // local storage
 import useLocalStorage from "./use-local-storage";
 
@@ -50,6 +52,8 @@ export const usePageOperations = (
   } = page;
   // collaborative actions
   const { executeCollaborativeAction } = useCollaborativePageActions(props);
+  // translation
+  const { t } = useTranslation();
   // local storage
   const { setValue: toggleFavoriteMenu, storedValue: isFavoriteMenuOpen } = useLocalStorage<boolean>(
     IS_FAVORITE_MENU_OPEN,
@@ -123,11 +127,19 @@ export const usePageOperations = (
           }
         } else {
           try {
+            // Unterseiten werden mitarchiviert -> Anzahl im Hinweis nennen
+            const subPageCount = page.id
+              ? getDescendantIds(page.getPeerPages(), page.id).filter((id) => !page.getPeerPages()[id]?.archived_at)
+                  .length
+              : 0;
             await executeCollaborativeAction({ type: "sendMessageToServer", message: "archive" });
             setToast({
               type: TOAST_TYPE.SUCCESS,
               title: "Success!",
-              message: "Page archived successfully.",
+              message:
+                subPageCount > 0
+                  ? t("page_tree.toasts.archived_with_children", { count: subPageCount })
+                  : "Page archived successfully.",
             });
           } catch (_error) {
             setToast({
@@ -218,6 +230,8 @@ export const usePageOperations = (
     isFavoriteMenuOpen,
     removePageFromFavorites,
     toggleFavoriteMenu,
+    page,
+    t,
   ]);
   return {
     pageOperations,

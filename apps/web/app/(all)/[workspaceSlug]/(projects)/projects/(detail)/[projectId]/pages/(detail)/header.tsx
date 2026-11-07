@@ -16,6 +16,7 @@ import { BreadcrumbLink } from "@/components/common/breadcrumb-link";
 import { PageAccessIcon } from "@/components/common/page-access-icon";
 import { SwitcherIcon, SwitcherLabel } from "@/components/common/switcher-label";
 import { PageHeaderActions } from "@/components/pages/header/actions";
+import { renderPageAncestorBreadcrumbs } from "@/components/pages/header/ancestor-breadcrumbs";
 import { PageSyncingBadge } from "@/components/pages/header/syncing-badge";
 import { CommonProjectBreadcrumbs } from "@/components/breadcrumbs/common";
 // hooks
@@ -35,13 +36,14 @@ export const PageDetailsHeader = observer(function PageDetailsHeader() {
   const { workspaceSlug, pageId, projectId } = useParams();
   // store hooks
   const { loader } = useProject();
-  const { getPageById, getCurrentProjectPageIds } = usePageStore(storeType);
+  const { getPageById, getCurrentProjectPageIds, getPageAncestorIds } = usePageStore(storeType);
   const page = usePage({
     pageId: pageId?.toString() ?? "",
     storeType,
   });
   // derived values
   const projectPageIds = getCurrentProjectPageIds(projectId?.toString());
+  const ancestorIds = pageId ? getPageAncestorIds(pageId.toString()) : [];
 
   const switcherOptions = projectPageIds
     .map((id) => {
@@ -77,7 +79,7 @@ export const PageDetailsHeader = observer(function PageDetailsHeader() {
                 />
               }
             />
-
+            {renderPageAncestorBreadcrumbs(ancestorIds, getPageById)}
             <Breadcrumbs.Item
               component={
                 <BreadcrumbNavigationSearchDropdown
