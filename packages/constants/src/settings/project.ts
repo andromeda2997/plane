@@ -44,6 +44,13 @@ export const PROJECT_SETTINGS: Record<TProjectSettingsTabs, TProjectSettingsItem
     access: [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER, EUserProjectRoles.GUEST],
     highlight: (pathname: string, baseUrl: string) => pathname === `${baseUrl}/members/`,
   },
+  calendar_feed: {
+    key: "calendar_feed",
+    i18n_label: "calendar_feed.settings_label",
+    href: `/calendar-feed`,
+    access: [EUserProjectRoles.ADMIN, EUserProjectRoles.MEMBER, EUserProjectRoles.GUEST],
+    highlight: (pathname: string, baseUrl: string) => pathname === `${baseUrl}/calendar-feed/`,
+  },
   features_cycles: {
     key: "features_cycles",
     i18n_label: "project_settings.features.cycles.short_title",
@@ -119,7 +126,11 @@ export const PROJECT_SETTINGS: Record<TProjectSettingsTabs, TProjectSettingsItem
 export const PROJECT_SETTINGS_FLAT_MAP: TProjectSettingsItem[] = Object.values(PROJECT_SETTINGS);
 
 export const GROUPED_PROJECT_SETTINGS: Record<PROJECT_SETTINGS_CATEGORY, TProjectSettingsItem[]> = {
-  [PROJECT_SETTINGS_CATEGORY.GENERAL]: [PROJECT_SETTINGS["general"], PROJECT_SETTINGS["members"]],
+  [PROJECT_SETTINGS_CATEGORY.GENERAL]: [
+    PROJECT_SETTINGS["general"],
+    PROJECT_SETTINGS["members"],
+    PROJECT_SETTINGS["calendar_feed"],
+  ],
   [PROJECT_SETTINGS_CATEGORY.FEATURES]: [
     PROJECT_SETTINGS["features_cycles"],
     PROJECT_SETTINGS["features_modules"],

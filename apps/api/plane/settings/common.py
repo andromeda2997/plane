@@ -114,6 +114,7 @@ INSTALLED_APPS = [
     # Fork-Erweiterungen (plane/ext)
     "plane.ext.recurring",
     "plane.ext.wiki",
+    "plane.ext.calendar_feed",
     # Third-party things
     "rest_framework",
     "corsheaders",

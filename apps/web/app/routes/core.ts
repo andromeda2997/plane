@@ -302,6 +302,11 @@ export const coreRoutes: RouteConfigEntry[] = [
               ":workspaceSlug/settings/projects/:projectId/members",
               "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/members/page.tsx"
             ),
+            // Project Calendar Feed (ICS-Abo, Fork-Erweiterung)
+            route(
+              ":workspaceSlug/settings/projects/:projectId/calendar-feed",
+              "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/calendar-feed/page.tsx"
+            ),
             // Project Features
             route(
               ":workspaceSlug/settings/projects/:projectId/features/cycles",
