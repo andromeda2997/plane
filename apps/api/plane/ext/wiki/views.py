@@ -24,7 +24,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 # Module imports
-from plane.app.permissions import ROLE
+from plane.app.permissions import ROLE, ProjectPagePermission
 from plane.app.serializers import (
     PageBinaryUpdateSerializer,
     PageVersionDetailSerializer,
@@ -38,6 +38,7 @@ from plane.bgtasks.page_version_task import track_page_version
 from plane.db.models import (
     Page,
     PageVersion,
+    ProjectMember,
     ProjectPage,
     UserFavorite,
     UserRecentVisit,
@@ -45,7 +46,15 @@ from plane.db.models import (
 )
 from plane.utils.content_validator import validate_html_content
 from plane.utils.error_codes import ERROR_CODES
-from plane.utils.page_tree import is_invalid_parent
+from plane.utils.page_tree import (
+    PageMoveError,
+    apply_page_move,
+    get_project_parent_page,
+    is_invalid_parent,
+    next_sort_order,
+    parse_move_payload,
+    validate_move_target,
+)
 
 # Local imports
 from .permissions import WorkspaceWikiPermission
@@ -135,6 +144,8 @@ class WikiPageListEndpoint(WikiBaseEndpoint):
             parent_id=parent_id,
             is_global=True,
             description_html=description_html,
+            # neue Seiten landen bei manueller Sortierung am Ende ihrer Ebene
+            sort_order=next_sort_order(wiki_pages_queryset(slug).filter(parent_id=parent_id)),
         )
         page_transaction.delay(
             new_description_html=description_html,
@@ -377,3 +388,92 @@ class WikiPageDuplicateEndpoint(WikiBaseEndpoint):
             user_id=request.user.id,
         )
         return Response(WikiPageDetailSerializer(page).data, status=status.HTTP_201_CREATED)
+
+
+def _move_response(page, changed):
+    return Response(
+        {
+            "id": str(page.id),
+            "parent": str(page.parent_id) if page.parent_id else None,
+            "sort_order": page.sort_order,
+            # alle Seiten, deren sort_order sich geändert hat (inkl. der verschobenen)
+            "sort_orders": changed,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+def _bad_request(message):
+    return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class WikiPagePositionEndpoint(WikiBaseEndpoint):
+    """Wiki-Seite in einem Aufruf umhängen (parent) und einsortieren (sort_order)."""
+
+    def post(self, request, slug, page_id):
+        page = self.get_page(slug, page_id)
+        if page is None:
+            return self.not_found()
+        try:
+            parent_id, sort_order, order_ids = parse_move_payload(request.data)
+        except PageMoveError as error:
+            return _bad_request(error.message)
+
+        error = self.validate_parent(slug, page, parent_id)
+        if error:
+            return error
+        try:
+            validate_move_target(page, parent_id)
+            changed = apply_page_move(page, parent_id, sort_order, order_ids, visible_wiki_pages(slug, request.user))
+        except PageMoveError as error:
+            return _bad_request(error.message)
+        return _move_response(page, changed)
+
+
+class ProjectPagePositionEndpoint(BaseAPIView):
+    """Projekt-Seite in einem Aufruf umhängen (parent) und einsortieren (sort_order).
+
+    Rechte wie beim Bearbeiten (ProjectPagePermission: Mitglied/Admin bei öffentlichen
+    Seiten, Besitzer bei privaten); zusätzlich sind Gäste immer ausgeschlossen – auch als
+    Besitzer einer privaten Seite.
+    """
+
+    permission_classes = [ProjectPagePermission]
+
+    def post(self, request, slug, project_id, page_id):
+        is_writer = ProjectMember.objects.filter(
+            workspace__slug=slug,
+            project_id=project_id,
+            member=request.user,
+            is_active=True,
+            role__gte=ROLE.MEMBER.value,
+        ).exists()
+        if not is_writer:
+            return Response(
+                {"error": "You don't have the required permissions."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        scope_pages = Page.objects.filter(
+            Q(owned_by=request.user) | Q(access=Page.PUBLIC_ACCESS),
+            workspace__slug=slug,
+            project_pages__project_id=project_id,
+            project_pages__deleted_at__isnull=True,
+        )
+        page = scope_pages.filter(pk=page_id).first()
+        if page is None:
+            return Response({"error": "Page not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            parent_id, sort_order, order_ids = parse_move_payload(request.data)
+        except PageMoveError as error:
+            return _bad_request(error.message)
+
+        if parent_id and not get_project_parent_page(slug, project_id, parent_id, request.user):
+            return _bad_request("Parent page not found in this project")
+        try:
+            validate_move_target(page, parent_id)
+            changed = apply_page_move(page, parent_id, sort_order, order_ids, scope_pages)
+        except PageMoveError as error:
+            return _bad_request(error.message)
+        return _move_response(page, changed)

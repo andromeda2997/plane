@@ -55,7 +55,7 @@ from plane.bgtasks.page_version_task import track_page_version
 from plane.bgtasks.recent_visited_task import recent_visited_task
 from plane.bgtasks.copy_s3_object import copy_s3_objects_of_description_and_assets
 from plane.app.permissions import ProjectPagePermission
-from plane.utils.page_tree import get_project_parent_page, is_invalid_parent
+from plane.utils.page_tree import get_project_parent_page, is_invalid_parent, next_sort_order
 
 
 def unarchive_archive_page_and_descendants(page_id, archived_at):
@@ -163,7 +163,17 @@ class PageViewSet(BaseViewSet):
         )
 
         if serializer.is_valid():
-            serializer.save()
+            # neue Seiten landen bei manueller Sortierung am Ende ihrer Ebene (Seitenbaum)
+            serializer.save(
+                sort_order=next_sort_order(
+                    Page.objects.filter(
+                        workspace__slug=slug,
+                        project_pages__project_id=project_id,
+                        project_pages__deleted_at__isnull=True,
+                        parent_id=parent_id or None,
+                    )
+                )
+            )
             # capture the page transaction
             page_transaction.delay(
                 new_description_html=request.data.get("description_html", "<p></p>"),

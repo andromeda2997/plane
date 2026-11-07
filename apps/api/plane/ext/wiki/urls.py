@@ -13,6 +13,8 @@ from .views import (
     WikiPageDuplicateEndpoint,
     WikiPageListEndpoint,
     WikiPageLockEndpoint,
+    WikiPagePositionEndpoint,
+    ProjectPagePositionEndpoint,
     WikiPageVersionEndpoint,
 )
 
@@ -40,6 +42,14 @@ urlpatterns = [
         name="wiki-page-version-detail",
     ),
     path(f"{PREFIX}<uuid:page_id>/duplicate/", WikiPageDuplicateEndpoint.as_view(), name="wiki-page-duplicate"),
+    # Verschieben + Sortieren (Drag-and-Drop im Seitenbaum)
+    # "position" statt "move": .../pages/<id>/move/ ist im Upstream-Frontend für "in anderes Projekt" belegt
+    path(f"{PREFIX}<uuid:page_id>/position/", WikiPagePositionEndpoint.as_view(), name="wiki-page-position"),
+    path(
+        "workspaces/<str:slug>/projects/<uuid:project_id>/pages/<uuid:page_id>/position/",
+        ProjectPagePositionEndpoint.as_view(),
+        name="project-page-position",
+    ),
     # Live-Server-Alias
     path(f"{LIVE_PREFIX}<uuid:page_id>/", WikiPageDetailEndpoint.as_view(), name="wiki-live-page-detail"),
     path(

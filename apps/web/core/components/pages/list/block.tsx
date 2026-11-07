@@ -19,6 +19,8 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 // plane web hooks
 import type { EPageStoreType } from "@/hooks/store";
 import { usePage } from "@/hooks/store";
+// local imports
+import { PAGE_TREE_INDENT_PX } from "./tree-dnd-item";
 
 type TPageListBlock = {
   pageId: string;
@@ -29,8 +31,6 @@ type TPageListBlock = {
   isExpanded?: boolean;
   onToggleExpand?: () => void;
 };
-
-const TREE_INDENT_PX = 20;
 
 export const PageListBlock = observer(function PageListBlock(props: TPageListBlock) {
   const { pageId, storeType, depth, childCount = 0, isExpanded = false, onToggleExpand } = props;
@@ -59,7 +59,7 @@ export const PageListBlock = observer(function PageListBlock(props: TPageListBlo
     <ListItem
       prependTitleElement={
         isTreeItem ? (
-          <span className="flex items-center gap-1" style={{ paddingLeft: depth * TREE_INDENT_PX }}>
+          <span className="flex items-center gap-1" style={{ paddingLeft: depth * PAGE_TREE_INDENT_PX }}>
             {childCount > 0 ? (
               <button
                 type="button"

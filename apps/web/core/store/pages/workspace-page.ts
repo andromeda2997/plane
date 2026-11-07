@@ -63,6 +63,10 @@ export class WorkspacePage extends BasePage implements TWorkspacePage {
         store.workspacePages.addPageToStore(duplicatedPage);
         return duplicatedPage;
       },
+      updatePosition: async (payload) => {
+        if (!workspaceSlug || !page.id) throw new Error("Missing required fields.");
+        return await workspacePageService.updatePosition(workspaceSlug, page.id, payload);
+      },
     });
     makeObservable(this, {
       canCurrentUserAccessPage: computed,
