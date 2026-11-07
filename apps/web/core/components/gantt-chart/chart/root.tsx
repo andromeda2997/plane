@@ -45,6 +45,10 @@ type ChartViewRootProps = {
   quickAdd?: React.ReactNode | undefined;
   showToday: boolean;
   isEpic?: boolean;
+  /** zusätzliche Ebene über dem Zeitstrahl (z. B. Meilenstein-Linien), absolut positioniert */
+  chartOverlay?: React.ReactNode;
+  /** zusätzliche Aktionen im Kopf des Diagramms */
+  headerActions?: React.ReactNode;
 };
 
 const timelineViewHelpers = {
@@ -77,6 +81,8 @@ export const ChartViewRoot = observer(function ChartViewRoot(props: ChartViewRoo
     showToday,
     updateBlockDates,
     isEpic = false,
+    chartOverlay,
+    headerActions,
   } = props;
   // states
   const [itemsContainerWidth, setItemsContainerWidth] = useState(0);
@@ -193,6 +199,7 @@ export const ChartViewRoot = observer(function ChartViewRoot(props: ChartViewRoo
         handleToday={handleToday}
         loaderTitle={loaderTitle}
         showToday={showToday}
+        headerActions={headerActions}
       />
       <GanttChartMainContent
         blockIds={blockIds}
@@ -216,6 +223,7 @@ export const ChartViewRoot = observer(function ChartViewRoot(props: ChartViewRoo
         quickAdd={quickAdd}
         updateBlockDates={updateBlockDates}
         isEpic={isEpic}
+        chartOverlay={chartOverlay}
       />
     </div>
   );

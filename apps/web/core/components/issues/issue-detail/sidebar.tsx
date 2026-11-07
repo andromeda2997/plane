@@ -41,6 +41,8 @@ import { SidebarPropertyListItem } from "@/components/common/layout/sidebar/prop
 import { IssueCycleSelect } from "./cycle-select";
 import { IssueLabel } from "./label";
 import { IssueModuleSelect } from "./module-select";
+import { IssueMilestoneSelect } from "@/components/milestones/issue-select";
+import { MilestoneIcon } from "@/components/milestones/icon";
 import type { TIssueOperations } from "./root";
 
 type Props = {
@@ -215,6 +217,16 @@ export const IssueDetailsSidebar = observer(function IssueDetailsSidebar(props: 
                 />
               </SidebarPropertyListItem>
             )}
+
+            <SidebarPropertyListItem icon={MilestoneIcon} label={t("milestone.label")}>
+              <IssueMilestoneSelect
+                className="w-full grow"
+                workspaceSlug={workspaceSlug}
+                projectId={projectId}
+                issueId={issueId}
+                disabled={!isEditable}
+              />
+            </SidebarPropertyListItem>
 
             {projectDetails?.cycle_view && (
               <SidebarPropertyListItem icon={CycleIcon} label={t("common.cycle")} appendElement={null}>

@@ -115,6 +115,7 @@ INSTALLED_APPS = [
     "plane.ext.recurring",
     "plane.ext.wiki",
     "plane.ext.calendar_feed",
+    "plane.ext.milestones",
     # Third-party things
     "rest_framework",
     "corsheaders",

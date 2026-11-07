@@ -19,15 +19,18 @@ from plane.db.models import (
     Issue,
     IssueAssignee,
     Module,
+    Profile,
     Project,
     ProjectMember,
     State,
     User,
     WorkspaceMember,
 )
+from plane.ext.calendar_feed import feed as feed_module
 from plane.ext.calendar_feed import views as feed_views
 from plane.ext.calendar_feed.models import CalendarFeed, hash_token
 from plane.ext.calendar_feed.throttles import CalendarFeedTokenThrottle
+from plane.ext.milestones.models import Milestone, MilestoneIssue
 
 WEB_URL = "https://plane.example.test"
 TODAY = timezone.now().date()
@@ -100,6 +103,13 @@ def other_user(db, workspace):
     user = User.objects.create(email=f"other-{uid}@plane.so", username=f"other_{uid}", first_name="Olga")
     WorkspaceMember.objects.create(workspace=workspace, member=user, role=15)
     return user
+
+
+def _milestone(project, name, day, issues=()):
+    milestone = Milestone.objects.create(name=name, date=day, project=project, workspace=project.workspace)
+    for issue in issues:
+        MilestoneIssue.objects.create(milestone=milestone, issue=issue, project=project, workspace=project.workspace)
+    return milestone
 
 
 def _create_feed(client, slug, **data):
@@ -368,6 +378,110 @@ class TestPublicFeed:
         Project.objects.filter(pk=project.pk).update(cycle_view=False, module_view=False)
         lines = _lines(_fetch(_token_from_url(response.data["url"])))
         assert not any(line.startswith("UID:cycle-") or line.startswith("UID:module-") for line in lines)
+
+
+@pytest.mark.contract
+class TestMilestonesInFeed:
+    def test_milestone_event(self, session_client, workspace, project, states, create_user):
+        day = TODAY + timedelta(days=10)
+        milestone = _milestone(project, "LP 3 abgeschlossen", day)
+        old = _milestone(project, "Uralt", TODAY - timedelta(days=feed_module.PAST_WINDOW_DAYS + 5))
+        deleted = _milestone(project, "Gelöscht", day)
+        Milestone.all_objects.filter(pk=deleted.pk).update(deleted_at=timezone.now())
+
+        response = _create_feed(session_client, workspace.slug, scope="project", project_id=str(project.id))
+        token = _token_from_url(response.data["url"])
+        lines = _lines(_fetch(token))
+
+        assert f"UID:milestone-{milestone.id}@plane" in lines
+        start = lines.index(f"UID:milestone-{milestone.id}@plane")
+        event = lines[start : lines.index("END:VEVENT", start)]
+        assert f"DTSTART;VALUE=DATE:{day:%Y%m%d}" in event
+        assert f"DTEND;VALUE=DATE:{day + timedelta(days=1):%Y%m%d}" in event
+        assert "SUMMARY:[NYA] Milestone: LP 3 abgeschlossen" in event
+        assert f"URL:{WEB_URL}/{workspace.slug}/projects/{project.id}/issues" in event
+        assert "CATEGORIES:Milestone" in event
+        assert "STATUS:CONFIRMED" in event
+        assert f"UID:milestone-{old.id}@plane" not in lines
+        assert f"UID:milestone-{deleted.id}@plane" not in lines
+
+        # Bezeichnung nach Profilsprache wie bei Zyklus/Modul; unabhängig von Zyklen/Modulen.
+        Profile.objects.update_or_create(user=create_user, defaults={"language": "de"})
+        Project.objects.filter(pk=project.pk).update(cycle_view=False, module_view=False)
+        lines = _lines(_fetch(token))
+        assert "SUMMARY:[NYA] Meilenstein: LP 3 abgeschlossen" in lines
+        assert "CATEGORIES:Meilenstein" in lines
+
+    def test_hide_completed_milestones(self, session_client, workspace, project, states):
+        day = TODAY + timedelta(days=3)
+        empty = _milestone(project, "Ohne Elemente", day)
+        closed = _milestone(
+            project,
+            "Alles erledigt",
+            day,
+            issues=[_issue(project, states["done"], "Fertig"), _issue(project, states["cancelled"], "Abgesagt")],
+        )
+        mixed = _milestone(
+            project,
+            "Teilweise",
+            day,
+            issues=[_issue(project, states["done"], "Fertig 2"), _issue(project, states["todo"], "Offen")],
+        )
+        # Entfernte Verknüpfung zu einem offenen Element zählt nicht mehr.
+        unlinked_open = _issue(project, states["todo"], "Nicht mehr verknüpft")
+        MilestoneIssue.objects.create(milestone=closed, issue=unlinked_open, project=project, workspace=workspace)
+        MilestoneIssue.objects.filter(milestone=closed, issue=unlinked_open).delete()
+
+        response = _create_feed(session_client, workspace.slug, scope="project", project_id=str(project.id))
+        token = _token_from_url(response.data["url"])
+
+        all_lines = _lines(_fetch(token))
+        for milestone in (empty, closed, mixed):
+            assert f"UID:milestone-{milestone.id}@plane" in all_lines
+
+        hidden = _lines(_fetch(token, hide_completed="true"))
+        assert f"UID:milestone-{empty.id}@plane" in hidden
+        assert f"UID:milestone-{mixed.id}@plane" in hidden
+        assert f"UID:milestone-{closed.id}@plane" not in hidden
+
+    def test_restricted_guest_sees_no_milestones(self, workspace, project, states, other_user):
+        ProjectMember.objects.create(project=project, member=other_user, role=5, is_active=True)
+        milestone = _milestone(project, "Abgabe", TODAY)
+        client = APIClient()
+        client.force_authenticate(user=other_user)
+        token = _token_from_url(
+            _create_feed(client, workspace.slug, scope="project", project_id=str(project.id)).data["url"]
+        )
+
+        assert f"UID:milestone-{milestone.id}@plane" not in _lines(_fetch(token))
+        Project.objects.filter(pk=project.pk).update(guest_view_all_features=True)
+        assert f"UID:milestone-{milestone.id}@plane" in _lines(_fetch(token))
+
+    def test_not_in_my_work_items_feed(self, session_client, workspace, project, states, create_user):
+        issue = _issue(project, states["todo"], "Mir zugewiesen", target=TODAY)
+        IssueAssignee.objects.create(issue=issue, assignee=create_user, project=project)
+        _milestone(project, "Abgabe", TODAY, issues=[issue])
+
+        response = _create_feed(session_client, workspace.slug, scope="my_work_items")
+        lines = _lines(_fetch(_token_from_url(response.data["url"])))
+        assert f"UID:{issue.id}@plane" in lines
+        assert not any(line.startswith("UID:milestone-") for line in lines)
+
+    def test_skipped_when_extension_not_installed(self, session_client, workspace, project, monkeypatch):
+        milestone = _milestone(project, "Abgabe", TODAY)
+        response = _create_feed(session_client, workspace.slug, scope="project", project_id=str(project.id))
+        token = _token_from_url(response.data["url"])
+        assert f"UID:milestone-{milestone.id}@plane" in _lines(_fetch(token))
+
+        original = feed_module.apps.is_installed
+        monkeypatch.setattr(
+            feed_module.apps,
+            "is_installed",
+            lambda name: False if name == "plane.ext.milestones" else original(name),
+        )
+        fetched = _fetch(token)
+        assert fetched.status_code == 200
+        assert f"UID:milestone-{milestone.id}@plane" not in _lines(fetched)
 
 
 @pytest.mark.contract

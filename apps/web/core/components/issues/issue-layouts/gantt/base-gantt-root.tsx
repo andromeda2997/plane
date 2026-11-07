@@ -18,6 +18,7 @@ import { renderFormattedPayloadDate } from "@plane/utils";
 import { TimeLineTypeContext } from "@/components/gantt-chart/contexts";
 import { GanttChartRoot } from "@/components/gantt-chart/root";
 import { IssueGanttSidebar } from "@/components/gantt-chart/sidebar/issues/sidebar";
+import { useGanttMilestones } from "@/components/milestones/gantt/use-gantt-milestones";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -55,6 +56,12 @@ export const BaseGanttRoot = observer(function BaseGanttRoot(props: IBaseGanttRo
   const { initGantt } = useTimeLineChart(GANTT_TIMELINE_TYPE.ISSUE);
   // store hooks
   const { allowPermissions } = useUserPermissions();
+  // Meilensteine nur im Arbeitselement-Gantt eines Projekts (Projekt, Zyklus, Modul, Ansicht)
+  const milestones = useGanttMilestones({
+    workspaceSlug: workspaceSlug?.toString(),
+    projectId: projectId?.toString(),
+    enabled: !isEpic,
+  });
 
   const appliedDisplayFilters = issuesFilter.issueFilters?.displayFilters;
   // plane web hooks
@@ -148,8 +155,11 @@ export const BaseGanttRoot = observer(function BaseGanttRoot(props: IBaseGanttRo
             showAllBlocks
             enableDependency
             isEpic={isEpic}
+            chartOverlay={milestones.chartOverlay}
+            headerActions={milestones.headerActions}
           />
         </div>
+        {milestones.modal}
       </TimeLineTypeContext.Provider>
     </IssueLayoutHOC>
   );
