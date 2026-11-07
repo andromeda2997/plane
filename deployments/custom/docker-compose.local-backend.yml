@@ -1,0 +1,35 @@
+# Laptop-Test-Stack: lokal gebautes Backend-Image (aus einem Worktree des Forks)
+# statt makeplane/plane-backend einsetzen, OHNE docker-compose.yaml zu aendern.
+#
+# Image bauen (im Worktree):
+#   docker build -f apps/api/Dockerfile.api -t plane-backend:dev apps/api
+#
+# Einsetzen (im Verzeichnis des Test-Stacks, z. B. ~/plane/plane-app; die Datei
+# vorher dorthin kopieren oder den Pfad zum Worktree angeben):
+#   DC="docker compose -p plane-app --env-file plane.env -f docker-compose.yaml -f docker-compose.local-backend.yml"
+#   $DC run --rm -T --no-deps migrator          # Exit-Code muss 0 sein
+#   $DC up -d --no-deps api worker beat-worker
+#
+# Zurueck zum offiziellen Backend (Migrationen bleiben in der DB, siehe README):
+#   docker compose -p plane-app --env-file plane.env -f docker-compose.yaml up -d --no-deps api worker beat-worker
+#
+# Achtung: setup.sh start/restart/upgrade sowie dev-start.sh/dev-stop.sh kennen diese
+# Datei nicht und stellen beim naechsten "up" ohne sie wieder das offizielle Backend her.
+
+x-local-backend: &local-backend
+  image: plane-backend:dev
+  # Nur das lokale Image verwenden, nie versuchen, "plane-backend:dev" zu ziehen.
+  pull_policy: never
+
+services:
+  api:
+    <<: *local-backend
+
+  worker:
+    <<: *local-backend
+
+  beat-worker:
+    <<: *local-backend
+
+  migrator:
+    <<: *local-backend

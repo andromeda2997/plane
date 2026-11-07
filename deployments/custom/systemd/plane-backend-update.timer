@@ -1,0 +1,11 @@
+# Vorlage: /etc/systemd/system/plane-backend-update.timer
+[Unit]
+Description=Plane: alle 15 Minuten nach neuem Backend-Image schauen
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=15min
+RandomizedDelaySec=60s
+
+[Install]
+WantedBy=timers.target
