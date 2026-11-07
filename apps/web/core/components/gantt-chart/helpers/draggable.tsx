@@ -14,6 +14,7 @@ import { cn } from "@plane/utils";
 // components
 import { LeftResizable } from "./blockResizables/left-resizable";
 import { RightResizable } from "./blockResizables/right-resizable";
+import { GanttDependencyHandles } from "../dependencies/handles";
 
 type Props = {
   block: IGanttBlock;
@@ -35,8 +36,14 @@ export const ChartDraggable = observer(function ChartDraggable(props: Props) {
     enableBlockLeftResize,
     enableBlockRightResize,
     enableBlockMove,
+    enableDependency,
     isMoving,
   } = props;
+
+  // connecting blocks changes work items, so it needs the same permission as resizing them
+  const canConnectBlocks =
+    (typeof enableDependency === "function" ? enableDependency(block.id) : enableDependency) &&
+    (enableBlockLeftResize || enableBlockRightResize);
 
   return (
     <div className="group relative z-[5] inline-flex h-full w-full cursor-pointer items-center font-medium transition-all">
@@ -62,6 +69,7 @@ export const ChartDraggable = observer(function ChartDraggable(props: Props) {
         isMoving={isMoving}
         position={block.position}
       />
+      {canConnectBlocks && <GanttDependencyHandles block={block} isMoving={!!isMoving} />}
     </div>
   );
 });

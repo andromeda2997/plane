@@ -17,6 +17,8 @@ import type {
 } from "@plane/types";
 import { renderFormattedPayloadDate } from "@plane/utils";
 import { currentViewDataWithView } from "@/components/gantt-chart/data";
+import type { TDependencyAnchor, TGanttDependency } from "@/components/gantt-chart/dependencies/helpers";
+import { getRequiredShift } from "@/components/gantt-chart/dependencies/helpers";
 import {
   getDateFromPositionOnGantt,
   getItemPositionWidth,
@@ -27,6 +29,15 @@ import {
 import type { RootStore } from "@/store/root.store";
 
 // types
+/** State of a connection that is being dragged from a block edge to create a dependency. */
+export type TDependencyDraft = {
+  sourceId: string;
+  sourceAnchor: TDependencyAnchor;
+  pointer: { x: number; y: number };
+  targetId?: string;
+  targetAnchor?: TDependencyAnchor;
+};
+
 type BlockData = {
   id: string;
   name: string;
@@ -49,6 +60,12 @@ export interface IBaseTimelineStore {
   getBlockById: (blockId: string) => IGanttBlock;
   // computed functions
   getIsCurrentDependencyDragging: (blockId: string) => boolean;
+  getBlockDependencies: () => TGanttDependency[];
+  getRelatedBlockIds: (blockId: string) => string[];
+  dependencyDraft: TDependencyDraft | undefined;
+  setDependencyDraft: (draft: TDependencyDraft | undefined) => void;
+  createBlockDependency: (draft: Required<TDependencyDraft>) => Promise<void>;
+  removeBlockDependency: (dependency: TGanttDependency) => Promise<void>;
   isBlockActive: (blockId: string) => boolean;
   // actions
   updateCurrentView: (view: TGanttViews) => void;
@@ -83,6 +100,12 @@ export class BaseTimeLineStore implements IBaseTimelineStore {
   rootStore: RootStore;
 
   isDependencyEnabled = false;
+  dependencyDraft: TDependencyDraft | undefined = undefined;
+
+  // positions of all blocks at the start of a drag, used to move dependent blocks along
+  private dependencyDragSnapshot: Record<string, { marginLeft: number; width: number }> | undefined = undefined;
+  // blocks that were moved along with the dragged block during the current drag
+  private dependencyShiftedBlockIds = new Set<string>();
 
   constructor(_rootStore: RootStore) {
     makeObservable(this, {
@@ -93,6 +116,7 @@ export class BaseTimeLineStore implements IBaseTimelineStore {
       currentView: observable.ref,
       currentViewData: observable,
       activeBlockId: observable.ref,
+      dependencyDraft: observable.ref,
       renderView: observable,
       // actions
       setIsDragging: action,
@@ -102,6 +126,7 @@ export class BaseTimeLineStore implements IBaseTimelineStore {
       updateCurrentViewData: action.bound,
       updateActiveBlockId: action.bound,
       updateRenderView: action.bound,
+      setDependencyDraft: action.bound,
     });
 
     this.initGantt();
@@ -286,6 +311,9 @@ export class BaseTimeLineStore implements IBaseTimelineStore {
 
         currBlock.position.marginLeft += addedWidth;
       });
+      if (this.dependencyDragSnapshot) {
+        for (const position of Object.values(this.dependencyDragSnapshot)) position.marginLeft += addedWidth;
+      }
     });
   });
 
@@ -295,8 +323,12 @@ export class BaseTimeLineStore implements IBaseTimelineStore {
    * @param shouldUpdateHalfBlock if is a half block then update the incomplete block only if this is true
    * @returns
    */
-  getUpdatedPositionAfterDrag = action((id: string, shouldUpdateHalfBlock: boolean) => {
+  getUpdatedPositionAfterDrag = action((id: string, shouldUpdateHalfBlock: boolean, ignoreDependencies = false) => {
     const currBlock = this.blocksMap[id];
+    const shiftedBlockIds = ignoreDependencies
+      ? []
+      : [...this.dependencyShiftedBlockIds].filter((blockId) => blockId !== id);
+    this.resetDependencyDragState();
 
     if (!currBlock?.position || !this.currentViewData) return [];
 
@@ -315,7 +347,24 @@ export class BaseTimeLineStore implements IBaseTimelineStore {
       );
     }
 
-    return [updatePayload];
+    const updates: IBlockUpdateDependencyData[] = [updatePayload];
+    // dependent blocks keep their duration, so both dates are derived from the new position
+    for (const blockId of shiftedBlockIds) {
+      const block = this.blocksMap[blockId];
+      if (!block?.position) continue;
+      updates.push({
+        id: blockId,
+        meta: block.meta,
+        start_date: renderFormattedPayloadDate(
+          getDateFromPositionOnGantt(block.position.marginLeft, this.currentViewData)
+        ),
+        target_date: renderFormattedPayloadDate(
+          getDateFromPositionOnGantt(block.position.marginLeft + block.position.width, this.currentViewData, -1)
+        ),
+      });
+    }
+
+    return updates;
   });
 
   /**
@@ -325,7 +374,7 @@ export class BaseTimeLineStore implements IBaseTimelineStore {
    * @param deltaWidth
    * @returns
    */
-  updateBlockPosition = action((id: string, deltaLeft: number, deltaWidth: number) => {
+  updateBlockPosition = action((id: string, deltaLeft: number, deltaWidth: number, ignoreDependencies = false) => {
     const currBlock = this.blocksMap[id];
 
     if (!currBlock?.position) return;
@@ -334,13 +383,127 @@ export class BaseTimeLineStore implements IBaseTimelineStore {
     const newWidth = currBlock.position.width + deltaWidth;
 
     runInAction(() => {
+      if (this.isDependencyEnabled) this.restoreShiftedBlocks(id);
+
       set(this.blocksMap, [id, "position"], {
         marginLeft: newMarginLeft ?? currBlock.position?.marginLeft,
         width: newWidth ?? currBlock.position?.width,
       });
+
+      if (this.isDependencyEnabled && !ignoreDependencies) this.moveDependentBlocks(id);
     });
   });
 
-  // Dummy method to return if the current Block's dependency is being dragged
-  getIsCurrentDependencyDragging = computedFn((_blockId: string) => false);
+  /**
+   * Returns the dependencies between the blocks of the chart. The base timeline has none.
+   */
+  getBlockDependencies(): TGanttDependency[] {
+    return [];
+  }
+
+  /**
+   * Returns the ids of all blocks that are related to the given block in any way.
+   */
+  getRelatedBlockIds(_blockId: string): string[] {
+    return [];
+  }
+
+  /**
+   * Persists a dependency that was created by dragging a connection between two blocks.
+   */
+  async createBlockDependency(_draft: Required<TDependencyDraft>): Promise<void> {}
+
+  /**
+   * Removes a dependency between two blocks.
+   */
+  async removeBlockDependency(_dependency: TGanttDependency): Promise<void> {}
+
+  setDependencyDraft = (draft: TDependencyDraft | undefined) => {
+    this.dependencyDraft = draft;
+  };
+
+  /**
+   * Moves blocks that were pushed by a dependency during the current drag back to where they were
+   * when the drag started, so that dependencies can be recalculated from scratch on every move.
+   */
+  private restoreShiftedBlocks(draggedBlockId: string) {
+    if (!this.dependencyDragSnapshot) {
+      this.dependencyDragSnapshot = {};
+      for (const [blockId, block] of Object.entries(this.blocksMap)) {
+        if (block?.position) this.dependencyDragSnapshot[blockId] = { ...block.position };
+      }
+    }
+    for (const blockId of this.dependencyShiftedBlockIds) {
+      const original = this.dependencyDragSnapshot[blockId];
+      if (blockId !== draggedBlockId && original) set(this.blocksMap, [blockId, "position"], { ...original });
+    }
+    this.dependencyShiftedBlockIds.clear();
+  }
+
+  /**
+   * Restores all dependencies around the dragged block: successors are pushed to the right and
+   * predecessors to the left, transitively. Blocks keep their duration. Dependencies that were
+   * already violated before the drag started are left alone.
+   */
+  private moveDependentBlocks(rootBlockId: string) {
+    const dependencies = this.getBlockDependencies();
+    if (!dependencies.length) return;
+
+    const outgoing = new Map<string, TGanttDependency[]>();
+    const incoming = new Map<string, TGanttDependency[]>();
+    for (const dependency of dependencies) {
+      outgoing.set(dependency.predecessorId, [...(outgoing.get(dependency.predecessorId) ?? []), dependency]);
+      incoming.set(dependency.successorId, [...(incoming.get(dependency.successorId) ?? []), dependency]);
+    }
+
+    const snapshot = this.dependencyDragSnapshot ?? {};
+    const wasSatisfied = (dependency: TGanttDependency) => {
+      const predecessor = snapshot[dependency.predecessorId];
+      const successor = snapshot[dependency.successorId];
+      return !predecessor || !successor || getRequiredShift(dependency.type, predecessor, successor) <= 0.5;
+    };
+    // only blocks with both dates can be moved as a whole
+    const getMovablePosition = (blockId: string) => {
+      const block = this.blocksMap[blockId];
+      return blockId !== rootBlockId && block?.position && block.start_date && block.target_date
+        ? block.position
+        : undefined;
+    };
+    const queue = [rootBlockId];
+    const moveBlock = (blockId: string, position: { marginLeft: number; width: number }, delta: number) => {
+      set(this.blocksMap, [blockId, "position"], { marginLeft: position.marginLeft + delta, width: position.width });
+      this.dependencyShiftedBlockIds.add(blockId);
+      queue.push(blockId);
+    };
+
+    // guard against dependency cycles
+    let remainingSteps = dependencies.length * 20 + 100;
+    while (queue.length && remainingSteps-- > 0) {
+      const blockId = queue.shift() as string;
+      const position = this.blocksMap[blockId]?.position;
+      if (!position) continue;
+
+      for (const dependency of outgoing.get(blockId) ?? []) {
+        const successorPosition = getMovablePosition(dependency.successorId);
+        if (!successorPosition || !wasSatisfied(dependency)) continue;
+        const shift = getRequiredShift(dependency.type, position, successorPosition);
+        if (shift > 0.5) moveBlock(dependency.successorId, successorPosition, shift);
+      }
+
+      for (const dependency of incoming.get(blockId) ?? []) {
+        const predecessorPosition = getMovablePosition(dependency.predecessorId);
+        if (!predecessorPosition || !wasSatisfied(dependency)) continue;
+        const shift = getRequiredShift(dependency.type, predecessorPosition, position);
+        if (shift > 0.5) moveBlock(dependency.predecessorId, predecessorPosition, -shift);
+      }
+    }
+  }
+
+  private resetDependencyDragState() {
+    this.dependencyDragSnapshot = undefined;
+    this.dependencyShiftedBlockIds.clear();
+  }
+
+  /** Whether a dependency connection is currently being dragged from the given block. */
+  getIsCurrentDependencyDragging = computedFn((blockId: string) => this.dependencyDraft?.sourceId === blockId);
 }

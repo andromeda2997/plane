@@ -266,6 +266,16 @@
       "click_to_downvote": "Klicken zum Runterstimmen",
       "click_to_view_upvotes": "Klicken um Hochstimmen anzuzeigen",
       "click_to_view_downvotes": "Klicken um Runterstimmen anzuzeigen"
+    },
+    "dependency": {
+      "handle_start": "Auf ein anderes Arbeitselement ziehen, um vom Start aus zu verbinden",
+      "handle_end": "Auf ein anderes Arbeitselement ziehen, um vom Ende aus zu verbinden",
+      "create_error": "Die Abhängigkeit konnte nicht angelegt werden.",
+      "remove_title": "Abhängigkeit entfernen",
+      "remove": "Entfernen",
+      "removing": "Wird entfernt",
+      "remove_description": "Die Arbeitselemente bleiben unverändert, nur die Abhängigkeit zwischen ihnen wird entfernt.",
+      "remove_error": "Die Abhängigkeit konnte nicht entfernt werden."
     }
   },
   "sub_work_item": {
