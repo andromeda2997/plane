@@ -40,6 +40,8 @@ type TDragState = {
   milestoneId: string;
   pointerId: number;
   startClientX: number;
+  /** Abstand Zeiger ↔ Linie beim Greifen, damit das Fähnchen nicht zum Zeiger springt */
+  grabOffset: number;
   moved: boolean;
   date: string;
 };
@@ -61,6 +63,8 @@ export const GanttMilestonesLayer = observer(function GanttMilestonesLayer(props
   const layerRef = useRef<HTMLDivElement>(null);
   const headerStripRef = useRef<HTMLDivElement>(null);
   const contextDateRef = useRef<string | undefined>(undefined);
+  // nach echtem Ziehen das folgende click-Ereignis nicht als „Bearbeiten“ werten
+  const suppressClickRef = useRef(false);
   // states
   const [drag, setDrag] = useState<TDragState | null>(null);
   // store hooks
@@ -99,12 +103,18 @@ export const GanttMilestonesLayer = observer(function GanttMilestonesLayer(props
     return position === undefined ? undefined : position + dayWidth / 2;
   };
 
-  /** Zeigerposition → Kalendertag (rastet tageweise ein). */
-  const getDateFromClientX = (clientX: number) => {
+  /** Zeigerposition (Viewport) → x im Diagramm; liest das Rechteck jedes Mal neu (Scrollen/Erweitern). */
+  const getChartX = (clientX: number) => {
     const rect = layerRef.current?.getBoundingClientRect();
-    if (!rect) return undefined;
+    return rect ? clientX - rect.left : undefined;
+  };
+
+  /** Zeigerposition → Kalendertag (rastet tageweise ein). */
+  const getDateFromClientX = (clientX: number, grabOffset = 0) => {
+    const chartX = getChartX(clientX);
+    if (chartX === undefined) return undefined;
     // Mitte des Tages i liegt bei (i + 0.5) * dayWidth; minus halbe Breite → rundet auf Tag i
-    const date = getDateFromPositionOnGantt(clientX - rect.left - dayWidth / 2, 0);
+    const date = getDateFromPositionOnGantt(chartX - grabOffset - dayWidth / 2, 0);
     return date ? renderFormattedPayloadDate(date) : undefined;
   };
 
@@ -121,11 +131,13 @@ export const GanttMilestonesLayer = observer(function GanttMilestonesLayer(props
     if (event.button !== 0) return;
     event.stopPropagation();
     if (!canEdit) return;
+    suppressClickRef.current = false;
     event.currentTarget.setPointerCapture(event.pointerId);
     setDrag({
       milestoneId: milestone.id,
       pointerId: event.pointerId,
       startClientX: event.clientX,
+      grabOffset: (getChartX(event.clientX) ?? 0) - (getX(milestone.date) ?? 0),
       moved: false,
       date: milestone.date,
     });
@@ -135,7 +147,7 @@ export const GanttMilestonesLayer = observer(function GanttMilestonesLayer(props
     if (!drag || drag.pointerId !== event.pointerId) return;
     const moved = drag.moved || Math.abs(event.clientX - drag.startClientX) > DRAG_THRESHOLD;
     if (!moved) return;
-    const pointerDate = getDateFromClientX(event.clientX) ?? drag.date;
+    const pointerDate = getDateFromClientX(event.clientX, drag.grabOffset) ?? drag.date;
     // im sichtbaren Zeitraum halten, sonst würde das Fähnchen samt Pointer-Capture verschwinden
     const date = pointerDate < chartStart ? chartStart : pointerDate > chartEnd ? chartEnd : pointerDate;
     if (moved !== drag.moved || date !== drag.date) setDrag({ ...drag, moved, date });
@@ -146,10 +158,10 @@ export const GanttMilestonesLayer = observer(function GanttMilestonesLayer(props
     event.currentTarget.releasePointerCapture(event.pointerId);
     const { moved, date } = drag;
     setDrag(null);
-    if (!moved) {
-      onOpenModal({ milestoneId: milestone.id });
-      return;
-    }
+    // ohne Bewegung: Bearbeiten öffnet der folgende click-Handler (öffnete das Modal schon hier,
+    // würde Headless UI den nachfolgenden Klick als „außerhalb“ werten und es sofort schließen)
+    if (!moved) return;
+    suppressClickRef.current = true;
     if (date === milestone.date) return;
     updateMilestone(workspaceSlug, projectId, milestone.id, { date })
       .then(() =>
@@ -164,8 +176,11 @@ export const GanttMilestonesLayer = observer(function GanttMilestonesLayer(props
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>, milestone: TMilestone) => {
     event.stopPropagation();
-    // Tastatur (Enter/Leertaste) löst nur click aus, keinen pointerdown
-    if (canEdit && event.detail === 0) onOpenModal({ milestoneId: milestone.id });
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
+    if (canEdit) onOpenModal({ milestoneId: milestone.id });
   };
 
   const contextMenuItems: TContextMenuItem[] = [
