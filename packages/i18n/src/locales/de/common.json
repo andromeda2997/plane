@@ -713,10 +713,10 @@
     "details": "Details",
     "project_structure": "Projektstruktur",
     "custom_properties": "Benutzerdefinierte Eigenschaften",
-    "your_profile": "Your profile",
-    "developer": "Developer",
-    "work_structure": "Work structure",
-    "execution": "Execution",
+    "your_profile": "Ihr Profil",
+    "developer": "Entwickler",
+    "work_structure": "Arbeitsstruktur",
+    "execution": "Abläufe",
     "administration": "Administration"
   },
   "chart": {
