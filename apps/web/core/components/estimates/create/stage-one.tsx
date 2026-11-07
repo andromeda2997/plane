@@ -14,7 +14,6 @@ import type { TEstimateSystemKeys } from "@plane/types";
 import { isEstimateSystemEnabled } from "./helper";
 import { convertMinutesToHoursMinutesString } from "@plane/utils";
 // components
-import { UpgradeBadge } from "@/components/workspace/upgrade-badge";
 import { RadioInput } from "../radio-select";
 
 type TEstimateCreateStageOne = {
@@ -49,11 +48,6 @@ export function EstimateCreateStageOne(props: TEstimateCreateStageOne) {
                       <Info size={12} />
                     </Tooltip>
                   </div>
-                ) : !isEnabled ? (
-                  <div className="relative flex cursor-no-drop items-center gap-2 text-tertiary">
-                    {t(ESTIMATE_SYSTEMS[currentSystem]?.i18n_name)}
-                    <UpgradeBadge />
-                  </div>
                 ) : (
                   <div>{t(ESTIMATE_SYSTEMS[currentSystem]?.i18n_name)}</div>
                 ),
@@ -72,7 +66,7 @@ export function EstimateCreateStageOne(props: TEstimateCreateStageOne) {
           onChange={(value) => handleEstimateSystem(value as TEstimateSystemKeys)}
         />
       </div>
-      {ESTIMATE_SYSTEMS[estimateSystem]?.is_available && !ESTIMATE_SYSTEMS[estimateSystem]?.is_ee && (
+      {ESTIMATE_SYSTEMS[estimateSystem]?.is_available && (
         <>
           <div className="space-y-1.5">
             <div className="text-13 font-medium text-secondary">
@@ -83,10 +77,7 @@ export function EstimateCreateStageOne(props: TEstimateCreateStageOne) {
               onClick={() => handleEstimatePoints("custom")}
             >
               <p className="text-14 font-medium">{t("project_settings.estimates.create.custom")}</p>
-              <p className="text-11 text-tertiary">
-                {/* TODO: Translate here */}
-                Add your own <span className="lowercase">{currentEstimateSystem.name}</span> from scratch.
-              </p>
+              <p className="text-11 text-tertiary">{t("project_settings.estimates.create.custom_description")}</p>
             </button>
           </div>
 
@@ -102,7 +93,7 @@ export function EstimateCreateStageOne(props: TEstimateCreateStageOne) {
                     className="space-y-1 rounded-md border border-subtle p-3 py-2.5 text-left hover:bg-surface-2"
                     onClick={() => handleEstimatePoints(name)}
                   >
-                    <p className="text-14 font-medium">{currentEstimateSystem.templates[name]?.title}</p>
+                    <p className="text-14 font-medium">{t(currentEstimateSystem.templates[name]?.i18n_title)}</p>
                     <p className="text-11 text-tertiary">
                       {currentEstimateSystem.templates[name]?.values
                         ?.map((template) =>

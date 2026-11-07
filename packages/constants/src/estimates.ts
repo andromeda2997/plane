@@ -122,21 +122,43 @@ export const ESTIMATE_SYSTEMS: TEstimateSystems = {
   time: {
     name: "Time",
     i18n_name: "project_settings.estimates.systems.time.label",
+    // values are stored in minutes
     templates: {
       hours: {
         title: "Hours",
         i18n_title: "project_settings.estimates.systems.time.hours",
         values: [
-          { id: undefined, key: 1, value: "1" },
-          { id: undefined, key: 2, value: "2" },
-          { id: undefined, key: 3, value: "3" },
-          { id: undefined, key: 4, value: "4" },
-          { id: undefined, key: 5, value: "5" },
-          { id: undefined, key: 6, value: "6" },
+          { id: undefined, key: 1, value: "60" },
+          { id: undefined, key: 2, value: "120" },
+          { id: undefined, key: 3, value: "180" },
+          { id: undefined, key: 4, value: "240" },
+          { id: undefined, key: 5, value: "300" },
+          { id: undefined, key: 6, value: "360" },
         ],
+      },
+      quick_to_full_day: {
+        title: "Quick to full day",
+        i18n_title: "project_settings.estimates.systems.time.quick_to_full_day",
+        values: [
+          { id: undefined, key: 1, value: "15" },
+          { id: undefined, key: 2, value: "30" },
+          { id: undefined, key: 3, value: "60" },
+          { id: undefined, key: 4, value: "120" },
+          { id: undefined, key: 5, value: "240" },
+          { id: undefined, key: 6, value: "480" },
+        ],
+      },
+      custom: {
+        title: "Custom",
+        i18n_title: "project_settings.estimates.systems.time.custom",
+        values: [
+          { id: undefined, key: 1, value: "30" },
+          { id: undefined, key: 2, value: "60" },
+        ],
+        hide: true,
       },
     },
     is_available: true,
-    is_ee: true,
+    is_ee: false,
   },
 };

@@ -1,0 +1,15 @@
+# Vorlage: /etc/systemd/system/plane-backend-update.service
+# Pfade anpassen, falls Plane nicht unter /opt/plane liegt (PLANE_DIR, ExecStart).
+[Unit]
+Description=Plane: eigenes Backend-Image aktualisieren (Dump, Migrationen, api/worker/beat-worker)
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+Environment=PLANE_DIR=/opt/plane
+Environment=PLANE_BACKUP_SCRIPT=/opt/plane/backup/pg_dump.sh
+ExecStart=/opt/plane/bin/update-backend.sh
+# Dump + Migrationen + Start koennen dauern; das Skript wartet selbst max. 15 min auf den Lock.
+TimeoutStartSec=45min
