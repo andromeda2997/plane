@@ -345,6 +345,11 @@ export const coreRoutes: RouteConfigEntry[] = [
                 "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/automations/page.tsx"
               ),
             ]),
+            // Project Recurring Work Items
+            route(
+              ":workspaceSlug/settings/projects/:projectId/recurring-work-items",
+              "./(all)/[workspaceSlug]/(settings)/settings/projects/[projectId]/recurring-work-items/page.tsx"
+            ),
           ]),
         ]),
       ]),

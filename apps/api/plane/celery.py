@@ -47,6 +47,10 @@ app.conf.beat_schedule = {
         "task": "plane.bgtasks.email_notification_task.stack_email_notification",
         "schedule": crontab(minute="*/5"),  # Every 5 minutes
     },
+    "check-every-fifteen-minutes-to-create-recurring-work-items": {
+        "task": "plane.ext.recurring.tasks.create_recurring_work_items",
+        "schedule": crontab(minute="*/15"),  # Every 15 minutes
+    },
     "push-instance-metrics": {
         "task": "plane.license.bgtasks.telemetry_metrics.push_instance_metrics",
         "schedule": schedule(run_every=timedelta(minutes=METRICS_PUSH_INTERVAL_MINUTES)),
