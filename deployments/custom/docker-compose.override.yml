@@ -1,0 +1,36 @@
+# Vorlage fuer <PLANE_DIR>/docker-compose.override.yml (Server, offizielles Plane-Compose).
+#
+# Docker Compose laedt diese Datei automatisch zusaetzlich zu docker-compose.yml, solange
+# beim Aufruf KEIN -f angegeben wird (docker compose --env-file plane.env -p plane-app ...).
+# Es gibt nur EINE Override-Datei: sie setzt das eigene Frontend (web) und das eigene
+# Backend (api, worker, beat-worker, migrator). Eine zweite Datei
+# (z. B. docker-compose.backend-override.yml) wuerde ohne -f nicht geladen.
+#
+# Bewegliche Tags vX.Y.Z-custom = immer der letzte Build von custom/vX.Y.Z
+# (GitHub Actions: custom-frontend.yml / custom-backend.yml -> GHCR).
+#
+# Zurueckrollen (Details: README.md im Repo unter deployments/custom/):
+#   - Frontend: bei "web" einen festen Tag eintragen (z. B. v1.4.3-custom.1), dann
+#       docker compose --env-file plane.env -p plane-app up -d --no-deps web
+#   - Backend: unten bei x-custom-backend-image einen festen Tag eintragen
+#       (z. B. v1.4.3-custom.3) oder das offizielle makeplane/plane-backend:<version>;
+#       Datenbank-Dump zurueckspielen, wenn Migrationen gelaufen sind (siehe README).
+#   - Alle vier Backend-Dienste MUESSEN dasselbe Image nutzen (update-backend.sh prueft das).
+
+x-custom-backend-image: &custom-backend-image ghcr.io/andromeda2997/plane-backend:v1.4.3-custom
+
+services:
+  web:
+    image: ghcr.io/andromeda2997/plane-frontend:v1.4.3-custom
+
+  api:
+    image: *custom-backend-image
+
+  worker:
+    image: *custom-backend-image
+
+  beat-worker:
+    image: *custom-backend-image
+
+  migrator:
+    image: *custom-backend-image
